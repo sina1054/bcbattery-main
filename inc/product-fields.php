@@ -85,19 +85,15 @@ add_action( 'woocommerce_process_product_meta', function ( $post_id ) {
 function bc_get_title_en( $product_id ) {
 	return trim( (string) get_post_meta( $product_id, '_bc_title_en', true ) );
 }
-add_action( 'woocommerce_product_options_general_product_data', function () {
-	echo '<div class="options_group">';
-	woocommerce_wp_text_input(
-		array(
-			'id'          => '_bc_title_en',
-			'label'       => 'عنوان انگلیسی',
-			'placeholder' => 'Samsung Galaxy S21 Battery EB-BG991ABY',
-			'desc_tip'    => true,
-			'description' => 'نام انگلیسی کالا (برند، مدل، کد باتری). اختیاری است و فقط در جاهایی که قالب نمایش می‌دهد استفاده می‌شود.',
-			'custom_attributes' => array( 'dir' => 'ltr', 'maxlength' => '200' ),
-			'style'       => 'text-align:left;width:50%;',
-		)
-	);
+/* Shown right under the Persian title and above the permalink (product editor only). */
+add_action( 'edit_form_before_permalink', function ( $post ) {
+	if ( ! $post || 'product' !== $post->post_type ) {
+		return;
+	}
+	$v = bc_get_title_en( $post->ID );
+	echo '<div id="bc-title-en-wrap" style="margin:6px 0 4px;">';
+	echo '<label class="screen-reader-text" for="bc_title_en">عنوان انگلیسی</label>';
+	echo '<input type="text" name="_bc_title_en" id="bc_title_en" dir="ltr" maxlength="200" autocomplete="off" spellcheck="false" value="' . esc_attr( $v ) . '" placeholder="English title (optional) - e.g. Samsung Galaxy S21 Battery EB-BG991ABY" style="width:100%;padding:3px 8px;font-size:1.4em;line-height:100%;height:1.7em;text-align:left;" />';
 	echo '</div>';
 } );
 add_action( 'woocommerce_process_product_meta', function ( $post_id ) {
