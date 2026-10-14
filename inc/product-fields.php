@@ -93,7 +93,7 @@ add_action( 'edit_form_before_permalink', function ( $post ) {
 	$v = bc_get_title_en( $post->ID );
 	echo '<div id="bc-title-en-wrap" style="margin:6px 0 4px;">';
 	echo '<label class="screen-reader-text" for="bc_title_en">عنوان انگلیسی</label>';
-	echo '<input type="text" name="_bc_title_en" id="bc_title_en" dir="ltr" maxlength="200" autocomplete="off" spellcheck="false" value="' . esc_attr( $v ) . '" placeholder="English title (optional) - e.g. Samsung Galaxy S21 Battery EB-BG991ABY" style="width:100%;padding:3px 8px;font-size:1.4em;line-height:100%;height:1.7em;text-align:left;" />';
+	echo '<input type="text" name="_bc_title_en" id="bc_title_en" dir="ltr" maxlength="200" autocomplete="off" spellcheck="false" value="' . esc_attr( $v ) . '" placeholder="عنوان انگلیسی محصول" style="width:100%;padding:3px 8px;font-size:1.4em;line-height:100%;height:1.7em;text-align:left;" />';
 	echo '</div>';
 } );
 add_action( 'woocommerce_process_product_meta', function ( $post_id ) {
