@@ -42,7 +42,7 @@ function bc_enqueue_module( $handle, $css = '', $js = '', $deps = array() ) {
 }
 
 /* Load modules. A failure in one module must never take the site down. */
-foreach ( array( 'cart', 'checkout', 'pay', 'account' ) as $bc_module ) {
+foreach ( array( 'product-fields', 'cart', 'checkout', 'pay', 'account' ) as $bc_module ) {
     $bc_file = get_stylesheet_directory() . '/inc/' . $bc_module . '.php';
     if ( file_exists( $bc_file ) ) {
         try {
