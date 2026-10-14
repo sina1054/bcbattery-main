@@ -80,3 +80,31 @@ add_action( 'woocommerce_process_product_meta', function ( $post_id ) {
 		}
 	}
 } );
+
+/* English title (_bc_title_en): optional, shown as a small English line under the title where templates use it. */
+function bc_get_title_en( $product_id ) {
+	return trim( (string) get_post_meta( $product_id, '_bc_title_en', true ) );
+}
+add_action( 'woocommerce_product_options_general_product_data', function () {
+	echo '<div class="options_group">';
+	woocommerce_wp_text_input(
+		array(
+			'id'          => '_bc_title_en',
+			'label'       => 'عنوان انگلیسی',
+			'placeholder' => 'Samsung Galaxy S21 Battery EB-BG991ABY',
+			'desc_tip'    => true,
+			'description' => 'نام انگلیسی کالا (برند، مدل، کد باتری). اختیاری است و فقط در جاهایی که قالب نمایش می‌دهد استفاده می‌شود.',
+			'custom_attributes' => array( 'dir' => 'ltr', 'maxlength' => '200' ),
+			'style'       => 'text-align:left;width:50%;',
+		)
+	);
+	echo '</div>';
+} );
+add_action( 'woocommerce_process_product_meta', function ( $post_id ) {
+	$v = isset( $_POST['_bc_title_en'] ) ? sanitize_text_field( wp_unslash( $_POST['_bc_title_en'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+	if ( '' !== $v ) {
+		update_post_meta( $post_id, '_bc_title_en', $v );
+	} else {
+		delete_post_meta( $post_id, '_bc_title_en' );
+	}
+} );
