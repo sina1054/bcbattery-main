@@ -138,3 +138,8 @@ body.bc-flow .bc-cart.is-busy .bc-summary, body.bc-flow .bc-cart.is-busy .bc-cou
 @media (max-width: 1024px) {
 	body.bc-flow--cart { padding-bottom: calc(var(--bc-bar-h) + env(safe-area-inset-bottom, 0px)); }
 }
+
+/* Quantity stepper colours: add = green, decrease / remove = red, so the two directions read at a glance. */
+body.bc-flow .bc-qty__btn[data-bc-act="inc"] { background: #E7F6EC; color: #15803D; }
+body.bc-flow .bc-qty__btn[data-bc-act="dec"],
+body.bc-flow .bc-qty__btn[data-bc-act="remove"] { background: #FDECEC; color: #C62828; }

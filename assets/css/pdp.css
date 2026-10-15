@@ -560,3 +560,7 @@ html.bcp-lock{overflow:hidden;scrollbar-gutter:stable}
 .bcp-page .bcp-sheet.is-pending .bcp-sheet__ok{background:none;border:2px solid #D6E2FA;border-top-color:var(--bcp-c);animation:bcp-spin .7s linear infinite}
 .bcp-page .bcp-sheet.is-pending .bcp-sheet__ok svg{visibility:hidden}
 .bcp-page .bcp-sheet__foot .bcp-btn.is-loading{opacity:.7;pointer-events:none}
+
+/* Quantity stepper colours: add = green, decrease / remove (minus or trash icon) = red. */
+.bcp-page .bcp-step__btn[data-bcp="inc"]{background:#E7F6EC;color:#15803D}
+.bcp-page .bcp-step__btn[data-bcp="dec"]{background:#FDECEC;color:#C62828}
