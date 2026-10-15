@@ -74,11 +74,13 @@ function bc_app_api_off_unhook() {
 	return $removed;
 }
 
-// Right after all plugins have loaded, then once more on each later boot step.
+/*
+ * Two passes, because one pass over every hook on the site costs about 8 ms: WoodApp adds all of its hooks
+ * while Woodmart Plus is being loaded, so the first pass catches them, and the second is there in case one
+ * is added later. Its REST routes need no pass at all - the filter below drops them for nothing.
+ */
 add_action( 'plugins_loaded', 'bc_app_api_off_unhook', PHP_INT_MAX );
-add_action( 'after_setup_theme', 'bc_app_api_off_unhook', 0 );
 add_action( 'init', 'bc_app_api_off_unhook', PHP_INT_MAX );
-add_action( 'rest_api_init', 'bc_app_api_off_unhook', 0 );
 
 /** Safety net: no REST route under /woodapp-wc-api/ survives, whoever registered it. */
 function bc_app_api_off_routes( $endpoints ) {
