@@ -1,0 +1,196 @@
+/*
+ * BC Battery - purchase flow: shared styles (cart, checkout, pay, order received).
+ * Everything is scoped to body.bc-flow or to .bc-* classes that only the flow templates print.
+ * Mobile first; one breakpoint at 1025px (same as the product page).
+ * Colours: the brand blue is the theme's primary colour (Woodmart > Theme settings > Styles and colors).
+ */
+
+body.bc-flow {
+	--bc-blue: var(--wd-primary-color, #1D57D0);
+	--bc-blue-hover: color-mix(in srgb, var(--bc-blue) 85%, #000);
+	--bc-blue-soft: color-mix(in srgb, var(--bc-blue) 8%, #fff);
+	--bc-ink: #242424;
+	--bc-muted: #5B5B5B;
+	--bc-surface: #F7F8FA;
+	--bc-line: #EBEBEB;
+	--bc-line-strong: #D5D8DE;
+	--bc-ok: #14612C;
+	--bc-ok-bg: #E6F4EA;
+	--bc-ok-line: #B7DEC2;
+	--bc-warn: #8A5A00;
+	--bc-warn-bg: #FFF4DB;
+	--bc-warn-line: #F2D58C;
+	--bc-err: #B42318;
+	--bc-err-bg: #FDE8E8;
+	--bc-err-line: #F5C2BE;
+	--bc-radius: 12px;
+	--bc-bar-h: 80px;
+	color: var(--bc-ink);
+}
+body.bc-flow .main-page-wrapper { background: var(--bc-surface); }
+/* Woodmart's page title bar and sidebar are not part of this design. */
+body.bc-flow .wd-page-title,
+body.bc-flow .page-title,
+body.bc-flow .sidebar-container { display: none; }
+body.bc-flow .site-content { grid-column: 1 / -1; width: 100%; max-width: none; flex: 0 0 100%; }
+/* The page frame (.bc-page) sets its own side padding, so the theme container adds none. */
+body.bc-flow .wd-content-layout { padding-inline: 0; padding-block: 0 16px; }
+@media (min-width: 1025px) { body.bc-flow .wd-content-layout { padding-block: 24px 40px; } }
+/* On phones the fixed bottom bar owns the bottom edge. */
+@media (max-width: 1024px) { body.bc-flow .scrollToTop { display: none; } }
+
+body.bc-flow .bc-page [hidden],
+body.bc-flow .bc-bar [hidden],
+body.bc-flow dialog.bc-sheet [hidden] { display: none !important; }
+
+/* ---------- Page frame ---------- */
+body.bc-flow .bc-page { width: 100%; max-width: 1200px; margin-inline: auto; padding: 0 16px 24px; box-sizing: border-box; color: var(--bc-ink); }
+body.bc-flow .bc-page *, body.bc-flow .bc-bar *, body.bc-flow dialog.bc-sheet * { box-sizing: border-box; }
+body.bc-flow .bc-cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+body.bc-flow .bc-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+@media (min-width: 1025px) {
+	body.bc-flow .bc-cols { grid-template-columns: minmax(0, 1fr) 380px; gap: 28px; align-items: start; }
+	/* Sticks below Woodmart's sticky header; its height comes from the header builder (--wd-header-sticky-h). */
+	body.bc-flow .bc-col--side { position: sticky; top: calc(var(--wd-header-sticky-h, 0px) + 16px); gap: 12px; }
+}
+
+body.bc-flow .bc-head { display: flex; align-items: center; min-height: 56px; margin-inline: -16px; padding-inline: 8px; background: #fff; border-bottom: 1px solid var(--bc-line); }
+body.bc-flow .bc-head__back { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; color: var(--bc-ink); }
+body.bc-flow .bc-head__title { flex: 1; margin: 0; padding-inline-end: 44px; text-align: center; font-size: 16px; font-weight: 800; line-height: 1.4; }
+body.bc-flow .bc-head__count { font-size: 14px; font-weight: 500; color: var(--bc-muted); }
+body.bc-flow .bc-head:not(:has(.bc-head__back)) .bc-head__title { padding-inline-end: 0; }
+@media (min-width: 1025px) {
+	body.bc-flow .bc-head { min-height: 0; margin: 0 0 16px; padding: 0; background: none; border: 0; }
+	body.bc-flow .bc-head__back { display: none; }
+	body.bc-flow .bc-head__title { padding: 0; text-align: start; font-size: 24px; }
+}
+
+/* ---------- Steps ---------- */
+body.bc-flow .bc-steps { display: flex; align-items: flex-start; margin: 0 -16px 10px; padding: 10px 16px 8px; list-style: none; background: #fff; }
+body.bc-flow .bc-steps__item { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 96px; min-height: 44px; color: #9AA1AD; font-size: 12.5px; }
+body.bc-flow .bc-steps__label { color: var(--bc-muted); font-weight: 500; white-space: nowrap; }
+body.bc-flow .bc-steps__item.is-current { color: var(--bc-blue); }
+body.bc-flow .bc-steps__item.is-current .bc-steps__label { color: var(--bc-blue); font-weight: 800; }
+body.bc-flow .bc-steps__item.is-done { color: var(--bc-ok); }
+body.bc-flow .bc-steps__link { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 44px; color: inherit; text-decoration: none; }
+body.bc-flow .bc-steps__line { flex: 1; height: 2px; margin-top: 13px; background: var(--bc-line-strong); }
+body.bc-flow .bc-steps__line.is-done { background: var(--bc-ok); }
+@media (min-width: 1025px) {
+	body.bc-flow .bc-steps { width: 480px; margin: 0 0 16px; padding: 0; background: none; }
+}
+
+/* ---------- Surfaces ---------- */
+body.bc-flow .bc-card { background: #fff; border: 1px solid var(--bc-line); border-radius: var(--bc-radius); }
+body.bc-flow .bc-muted { color: var(--bc-muted); }
+body.bc-flow .bc-i { flex: none; }
+body.bc-flow .bc-money { white-space: nowrap; }
+body.bc-flow .bc-money__n { font-weight: 700; }
+body.bc-flow .bc-money__u { font-size: 12px; font-weight: 400; }
+body.bc-flow .bc-notices:empty { display: none; }
+
+body.bc-flow .bc-alert { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border: 1px solid; border-radius: var(--bc-radius); font-size: 13px; line-height: 1.8; }
+body.bc-flow .bc-alert > div { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+body.bc-flow .bc-alert b { font-size: 13.5px; }
+body.bc-flow .bc-alert--warn { background: var(--bc-warn-bg); border-color: var(--bc-warn-line); color: #5C3C00; }
+body.bc-flow .bc-alert--warn b, body.bc-flow .bc-alert--warn .bc-i { color: var(--bc-warn); }
+body.bc-flow .bc-alert--err { background: var(--bc-err-bg); border-color: var(--bc-err-line); color: #7A1B12; }
+body.bc-flow .bc-alert--err b, body.bc-flow .bc-alert--err .bc-i { color: var(--bc-err); }
+
+/* ---------- Buttons ---------- */
+body.bc-flow .bc-btn, body.bc-flow .bc-qty__btn, body.bc-flow .bc-chip, body.bc-flow .bc-link, body.bc-flow .bc-coupon__toggle, body.bc-flow .bc-coupon__x, body.bc-flow .bc-bar__total, body.bc-flow .bc-sheet__close, body.bc-flow .bc-toast button {
+	appearance: none; margin: 0; font: inherit; letter-spacing: normal; text-transform: none; text-decoration: none; box-shadow: none; cursor: pointer;
+}
+body.bc-flow .bc-btn {
+	display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 16px;
+	border: 1px solid transparent; border-radius: 10px; background: var(--bc-blue-soft); color: var(--bc-blue);
+	font-size: 14px; font-weight: 700; line-height: 1.3; text-align: center; transition: background-color .15s, color .15s, border-color .15s;
+}
+body.bc-flow .bc-btn--primary { background: var(--bc-blue); color: #fff; }
+body.bc-flow .bc-btn--primary:hover { background: var(--bc-blue-hover); color: #fff; }
+body.bc-flow .bc-btn--outline { background: #fff; border-color: var(--bc-line-strong); color: var(--bc-ink); }
+body.bc-flow .bc-btn--lg { min-height: 56px; font-size: 17px; }
+body.bc-flow .bc-btn--sm { font-size: 13px; }
+body.bc-flow .bc-btn--warn { background: var(--bc-warn); color: #fff; margin-top: 8px; align-self: stretch; }
+body.bc-flow .bc-btn--danger-ghost { background: #fff; border-color: var(--bc-err-line); color: var(--bc-err); font-size: 13px; }
+body.bc-flow .bc-btn.is-disabled, body.bc-flow .bc-btn:disabled { background: #C9CED8; border-color: transparent; color: #fff; cursor: not-allowed; }
+body.bc-flow .bc-link { padding: 0; border: 0; background: none; color: var(--bc-blue); font-size: inherit; font-weight: 700; text-decoration: underline; min-height: 44px; }
+body.bc-flow .bc-btn:focus-visible, body.bc-flow .bc-qty__btn:focus-visible, body.bc-flow .bc-chip:focus-visible, body.bc-flow .bc-link:focus-visible, body.bc-flow .bc-coupon__toggle:focus-visible,
+body.bc-flow .bc-coupon__x:focus-visible, body.bc-flow .bc-bar__total:focus-visible, body.bc-flow .bc-sheet__close:focus-visible, body.bc-flow .bc-comp__track:focus-visible, body.bc-flow .bc-comp__arrow:focus-visible {
+	outline: 2px solid var(--bc-blue); outline-offset: 2px;
+}
+
+/* A short spinner on the main buttons while a change is on its way. */
+body.bc-flow .bc-busy .bc-bar__cta, body.bc-flow .bc-busy .bc-summary__cta { position: relative; color: transparent; pointer-events: auto; }
+body.bc-flow .bc-busy .bc-bar__cta::after, body.bc-flow .bc-busy .bc-summary__cta::after {
+	content: ""; position: absolute; inset: 0; margin: auto; width: 22px; height: 22px; border: 3px solid rgba(255, 255, 255, .45); border-top-color: #fff; border-radius: 50%;
+	animation: bc-spin .7s linear infinite;
+}
+@keyframes bc-spin { to { transform: rotate(360deg); } }
+
+/* ---------- Price rows (summary card and sheet) ---------- */
+body.bc-flow .bc-sum { display: flex; flex-direction: column; gap: 12px; margin: 0; font-size: 14px; }
+body.bc-flow .bc-sum__row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0; }
+body.bc-flow .bc-sum__row dt { margin: 0; color: var(--bc-muted); font-weight: 400; }
+body.bc-flow .bc-sum__row dd { margin: 0; text-align: end; }
+body.bc-flow .bc-sum__row--discount dd { color: var(--bc-ok); }
+body.bc-flow .bc-sum__later { font-size: 12.5px; white-space: nowrap; }
+body.bc-flow .bc-sum__row--total { padding-top: 12px; border-top: 1px solid var(--bc-line); }
+body.bc-flow .bc-sum__row--total dt { color: var(--bc-ink); font-size: 15px; font-weight: 800; }
+body.bc-flow .bc-sum__row--total .bc-money__n { color: var(--bc-blue); font-size: 18px; font-weight: 800; }
+body.bc-flow .bc-trust { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0; color: var(--bc-muted); font-size: 12.5px; line-height: 1.7; text-align: center; }
+body.bc-flow .bc-trust .bc-i { color: var(--bc-blue); }
+
+/* ---------- Bottom bar (mobile) and sheet ---------- */
+body.bc-flow .bc-bar {
+	position: fixed; inset-inline: 0; bottom: 0; z-index: 100; display: flex; align-items: center; gap: 14px;
+	padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: #fff; border-top: 1px solid var(--bc-line); box-shadow: 0 -4px 16px rgba(20, 30, 60, .08);
+}
+body.bc-flow .bc-bar__cta { flex: 1; }
+body.bc-flow .bc-bar__total { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--bc-ink); text-align: start; line-height: 1.3; font-size: 16px; }
+body.bc-flow .bc-bar__count { display: flex; align-items: center; gap: 2px; color: var(--bc-muted); font-size: 12px; }
+@media (min-width: 1025px) { body.bc-flow .bc-bar { display: none; } }
+
+body.bc-flow dialog.bc-sheet {
+	position: fixed; inset: auto 0 0; width: 100%; max-width: none; max-height: 90dvh; margin: 0; padding: 10px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+	border: 0; border-radius: 24px 24px 0 0; background: #fff; color: var(--bc-ink); box-shadow: 0 -8px 30px rgba(0, 0, 0, .18); overflow: auto;
+}
+body.bc-flow dialog.bc-sheet[open] { display: flex; flex-direction: column; gap: 14px; animation: bc-sheet-up .22s ease-out; }
+body.bc-flow dialog.bc-sheet::backdrop { background: rgba(20, 24, 36, .55); }
+html:has(dialog.bc-sheet[open]) { overflow: hidden; }
+body.bc-flow .bc-sheet__grip { width: 40px; height: 4px; margin: 0 auto; border-radius: 2px; background: var(--bc-line-strong); }
+body.bc-flow .bc-sheet__head { display: flex; align-items: center; justify-content: space-between; }
+body.bc-flow .bc-sheet__head h2 { margin: 0; font-size: 16px; font-weight: 800; }
+body.bc-flow .bc-sheet__close { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin-inline-end: -10px; border: 0; background: none; color: var(--bc-ink); }
+body.bc-flow .bc-sheet__note { margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--bc-surface); color: var(--bc-muted); font-size: 12.5px; line-height: 1.9; }
+@keyframes bc-sheet-up { from { transform: translateY(24px); opacity: .6; } }
+
+/* ---------- Toast ---------- */
+body.bc-flow .bc-toast {
+	position: fixed; inset-inline: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 1000; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+	padding: 10px 16px; border-radius: 10px; background: #242424; color: #fff; font-size: 14px; line-height: 1.7;
+	opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .2s, transform .2s;
+}
+body.bc-flow .bc-toast.is-on { opacity: 1; transform: none; pointer-events: auto; }
+body.bc-flow .bc-toast--err { background: var(--bc-err); }
+body.bc-flow .bc-toast button { min-height: 44px; padding: 0 4px; border: 0; background: none; color: #9DBBFF; font-weight: 700; }
+body.bc-flow:has(.bc-bar) .bc-toast { bottom: calc(var(--bc-bar-h) + 12px + env(safe-area-inset-bottom, 0px)); }
+@media (min-width: 1025px) { body.bc-flow .bc-toast, body.bc-flow:has(.bc-bar) .bc-toast { inset-inline: auto 24px; bottom: 24px; max-width: 420px; } }
+
+/* ---------- Order lines in short (checkout summary, result screens) ---------- */
+body.bc-flow .bc-mini { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 0; list-style: none; }
+body.bc-flow .bc-mini__row { display: flex; align-items: center; gap: 12px; margin: 0; }
+body.bc-flow .bc-mini__row.is-out { opacity: .5; }
+body.bc-flow .bc-mini__img { flex: none; width: 56px; height: 56px; border-radius: 8px; background: var(--bc-surface); overflow: hidden; }
+body.bc-flow .bc-mini__thumb { display: block; width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+body.bc-flow .bc-mini__attr { display: block; color: var(--bc-muted); font-size: 12px; line-height: 1.5; }
+body.bc-flow .bc-mini__name { flex: 1; min-width: 0; font-size: 13.5px; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+body.bc-flow .bc-mini__qty { flex: none; color: var(--bc-muted); font-size: 12.5px; }
+
+/* ---------- Editable zones (Woodmart HTML blocks) ---------- */
+body.bc-flow .bc-zone { margin: 12px 0; }
+
+@media (prefers-reduced-motion: reduce) {
+	body.bc-flow .bc-btn, body.bc-flow .bc-toast { transition: none; }
+	body.bc-flow dialog.bc-sheet[open] { animation: none; }
+	body.bc-flow .bc-busy .bc-bar__cta::after, body.bc-flow .bc-busy .bc-summary__cta::after { animation-duration: 1.6s; }
+}

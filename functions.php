@@ -126,3 +126,12 @@ if ( file_exists( get_stylesheet_directory() . '/inc/bc-core.php' ) ) {
 		error_log( 'BC flow load failed: ' . $e->getMessage() );
 	}
 }
+
+/* Quiet the MCP adapter's 'ability does not exist' log flood. Guarded: a failure here must never take the site down. */
+if ( file_exists( get_stylesheet_directory() . '/inc/mcp-log-quiet.php' ) ) {
+	try {
+		require_once get_stylesheet_directory() . '/inc/mcp-log-quiet.php';
+	} catch ( \Throwable $e ) {
+		error_log( 'BC MCP log quiet load failed: ' . $e->getMessage() );
+	}
+}

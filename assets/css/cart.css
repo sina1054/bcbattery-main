@@ -1,1 +1,140 @@
-/* BC cart - styles come here. */
+/*
+ * BC Battery - cart page. Shared pieces (buttons, cards, summary rows, bar, sheet) are in flow.css.
+ */
+
+/* ---------- Lines ---------- */
+body.bc-flow .bc-items { display: flex; flex-direction: column; gap: 10px; }
+body.bc-flow .bc-lines { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+body.bc-flow .bc-line { display: flex; gap: 12px; padding: 12px; border: 1px solid var(--bc-line); border-radius: var(--bc-radius); background: #fff; }
+body.bc-flow .bc-line__img { display: block; flex: none; width: 84px; height: 84px; border-radius: 8px; background: var(--bc-surface); overflow: hidden; }
+body.bc-flow .bc-line__thumb { display: block; width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+body.bc-flow .bc-line__body { display: flex; flex: 1; flex-direction: column; gap: 6px; min-width: 0; }
+body.bc-flow .bc-line__title { display: inline-flex; align-items: center; min-height: 44px; color: var(--bc-ink); font-size: 14px; font-weight: 500; line-height: 1.6; }
+body.bc-flow .bc-line__title:hover { color: var(--bc-blue); }
+body.bc-flow .bc-line__head { display: flex; flex-direction: column; min-width: 0; }
+body.bc-flow .bc-line__attr { margin-top: -8px; color: var(--bc-muted); font-size: 12.5px; line-height: 1.6; }
+body.bc-flow .bc-line__row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; }
+body.bc-flow .bc-line__price { display: flex; flex-direction: column; align-items: flex-end; margin-inline-start: auto; font-size: 15px; line-height: 1.5; }
+body.bc-flow .bc-line__was { color: var(--bc-muted); font-size: 12.5px; font-weight: 400; }
+body.bc-flow .bc-line__flag { color: var(--bc-err); font-size: 13px; font-weight: 700; }
+body.bc-flow .bc-line__note { margin: 0; font-size: 12.5px; font-weight: 500; line-height: 1.7; }
+body.bc-flow .bc-line__note--warn { color: var(--bc-warn); }
+body.bc-flow .bc-line__note--err { color: var(--bc-err); }
+body.bc-flow .bc-line.is-out { border-color: var(--bc-err-line); }
+body.bc-flow .bc-line.is-out .bc-line__img { opacity: .5; }
+body.bc-flow .bc-line.is-pending .bc-line__price { opacity: .5; }
+
+body.bc-flow .bc-qty { display: flex; align-items: center; gap: 2px; padding: 2px; border: 1px solid var(--bc-line); border-radius: 10px; }
+body.bc-flow .bc-qty__btn { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 8px; background: var(--bc-blue-soft); color: var(--bc-blue); }
+body.bc-flow .bc-qty__btn:disabled { opacity: .4; cursor: not-allowed; }
+body.bc-flow .bc-qty__n { min-width: 30px; text-align: center; font-size: 16px; font-weight: 800; }
+
+@media (min-width: 1025px) {
+	body.bc-flow .bc-line { align-items: center; gap: 18px; padding: 16px; }
+	body.bc-flow .bc-line__img { width: 104px; height: 104px; }
+	body.bc-flow .bc-line__body { display: grid; grid-template-columns: minmax(0, 1fr) auto 150px; align-items: center; column-gap: 18px; }
+	body.bc-flow .bc-line__row { display: contents; }
+	body.bc-flow .bc-line__head { grid-column: 1; }
+	body.bc-flow .bc-line__title { font-size: 15px; line-height: 1.7; }
+	body.bc-flow .bc-line__price { grid-column: 3; align-items: flex-end; font-size: 16px; }
+	body.bc-flow .bc-line__note { grid-column: 1 / -1; }
+}
+
+/* ---------- Complementary products ---------- */
+body.bc-flow .bc-comp {
+	display: flex; flex-direction: column; gap: 12px; margin-top: 10px; padding: 12px; border: 1px solid #D6E3FA; border-radius: 16px;
+	background: linear-gradient(180deg, #F1F6FF 0%, #F8FAFF 100%);
+}
+body.bc-flow .bc-comp__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+body.bc-flow .bc-comp__badge { display: flex; flex: none; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; background: var(--bc-blue); color: #fff; }
+body.bc-flow .bc-comp__heading { flex: 1; min-width: 0; line-height: 1.5; }
+body.bc-flow .bc-comp__title { margin: 0; color: #14306E; font-size: 15.5px; font-weight: 800; }
+body.bc-flow .bc-comp__sub { margin: 0; color: var(--bc-muted); font-size: 12px; }
+body.bc-flow .bc-comp__nav { display: flex; flex: none; gap: 2px; }
+body.bc-flow .bc-comp__arrow { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 1px solid #C6D6F3; border-radius: 22px; background: #fff; color: var(--bc-blue); cursor: pointer; }
+body.bc-flow .bc-comp__arrow:disabled { border-color: #E1E9F7; color: #B5BAC4; cursor: default; }
+body.bc-flow .bc-comp__track { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
+body.bc-flow .bc-comp__track::-webkit-scrollbar { display: none; }
+body.bc-flow .bc-comp__card {
+	display: flex; flex: 0 0 calc((100% - 8px) / 2); flex-direction: column; gap: 6px; min-width: 0; padding: 8px; scroll-snap-align: start;
+	border: 1px solid #E1E9F7; border-radius: 14px; background: #fff; box-shadow: 0 2px 8px rgba(29, 87, 208, .07);
+}
+body.bc-flow .bc-comp__img { display: block; height: 76px; border-radius: 10px; background: #F3F5FA; overflow: hidden; }
+body.bc-flow .bc-comp__thumb { display: block; width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+body.bc-flow .bc-comp__name {
+	display: -webkit-box; height: 37px; overflow: hidden; color: var(--bc-ink); font-size: 12px; line-height: 1.55;
+	-webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+body.bc-flow .bc-comp__price { display: flex; align-items: center; gap: 4px; font-size: 13px; }
+body.bc-flow .bc-comp__var { display: flex; flex-direction: column; gap: 3px; }
+body.bc-flow .bc-comp__label { color: var(--bc-muted); font-size: 12px; }
+body.bc-flow .bc-comp__label b { color: var(--bc-ink); }
+body.bc-flow .bc-chips { display: flex; gap: 5px; margin: 0 -8px; padding: 0 8px; overflow-x: auto; scrollbar-width: none; }
+body.bc-flow .bc-chips::-webkit-scrollbar { display: none; }
+body.bc-flow .bc-chip { flex: none; height: 44px; padding: 0 9px; border: 1px solid var(--bc-line-strong); border-radius: 999px; background: #fff; color: var(--bc-ink); font-size: 12px; white-space: nowrap; }
+body.bc-flow .bc-chip[aria-pressed="true"] { border: 1.5px solid var(--bc-blue); background: var(--bc-blue-soft); color: var(--bc-blue); font-weight: 700; }
+body.bc-flow .bc-comp__add { margin-top: auto; font-size: 12.5px; }
+body.bc-flow .bc-comp__add svg:nth-of-type(2), body.bc-flow .bc-comp__lbl-done { display: none; }
+body.bc-flow .bc-comp__add.is-added { background: var(--bc-ok-bg); border-color: var(--bc-ok-line); color: var(--bc-ok); cursor: default; }
+body.bc-flow .bc-comp__add.is-added svg:nth-of-type(1), body.bc-flow .bc-comp__add.is-added .bc-comp__lbl-add { display: none; }
+body.bc-flow .bc-comp__add.is-added svg:nth-of-type(2), body.bc-flow .bc-comp__add.is-added .bc-comp__lbl-done { display: inline; }
+body.bc-flow .bc-comp__add.is-loading { opacity: .6; }
+body.bc-flow .bc-comp__dots { display: flex; justify-content: center; gap: 6px; }
+body.bc-flow .bc-comp__dots span { width: 6px; height: 6px; border-radius: 3px; background: #C5D3EE; transition: width .2s, background-color .2s; }
+body.bc-flow .bc-comp__dots span.is-on { width: 22px; background: var(--bc-blue); }
+@media (min-width: 1025px) {
+	body.bc-flow .bc-comp { padding: 16px; }
+	body.bc-flow .bc-comp__card { flex-basis: calc((100% - 16px) / 3); }
+	body.bc-flow .bc-comp__img { height: 96px; }
+}
+
+/* ---------- Coupon ---------- */
+body.bc-flow .bc-coupon { display: flex; flex-direction: column; gap: 8px; }
+body.bc-flow .bc-coupon__toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 52px; padding: 0 14px; color: var(--bc-blue); font-size: 14px; font-weight: 700; }
+body.bc-flow .bc-coupon__label { display: flex; align-items: center; gap: 10px; }
+body.bc-flow .bc-coupon__toggle > .bc-i { color: var(--bc-muted); }
+body.bc-flow .bc-coupon__form { display: flex; flex-direction: column; gap: 10px; padding: 14px; }
+body.bc-flow .bc-coupon__head { display: flex; align-items: center; justify-content: space-between; color: var(--bc-blue); font-size: 14px; font-weight: 700; }
+body.bc-flow .bc-coupon__head label { margin: 0; font-weight: 700; }
+body.bc-flow .bc-coupon__head .bc-link { color: var(--bc-muted); font-size: 12.5px; font-weight: 500; text-decoration: none; }
+body.bc-flow .bc-coupon__field { display: flex; gap: 8px; }
+body.bc-flow .bc-coupon__field input {
+	flex: 1; min-width: 0; height: 52px; margin: 0; padding: 0 14px; border: 1.5px solid var(--bc-line-strong); border-radius: 8px; background: #fff;
+	color: var(--bc-ink); font: inherit; font-size: 16px; text-align: right; box-shadow: none;
+}
+body.bc-flow .bc-coupon__field input:focus { border-color: var(--bc-blue); outline: 0; }
+body.bc-flow .bc-coupon__field input[aria-invalid="true"] { border-color: #D92D20; background: #FFF8F7; }
+body.bc-flow .bc-coupon__field .bc-btn { width: 92px; height: 52px; }
+body.bc-flow .bc-coupon__msg { margin: 0; color: var(--bc-err); font-size: 12.5px; font-weight: 700; line-height: 1.7; }
+body.bc-flow .bc-coupon__applied { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+body.bc-flow .bc-coupon__chip { display: flex; align-items: center; gap: 8px; padding-inline: 12px 0; border: 1px solid var(--bc-ok-line); border-radius: 10px; background: var(--bc-ok-bg); color: var(--bc-ok); font-size: 13px; }
+body.bc-flow .bc-coupon__chip span { flex: 1; }
+body.bc-flow .bc-coupon__x { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 0; background: none; color: var(--bc-ok); }
+
+/* ---------- Summary ---------- */
+body.bc-flow .bc-summary { display: flex; flex-direction: column; gap: 12px; padding: 16px; font-size: 14px; }
+body.bc-flow .bc-summary__cta { display: none; }
+body.bc-flow .bc-summary__note { display: none; margin: 0; color: var(--bc-muted); font-size: 12px; line-height: 1.8; text-align: center; }
+@media (min-width: 1025px) {
+	body.bc-flow .bc-summary { gap: 14px; padding: 22px; box-shadow: 0 6px 24px rgba(20, 30, 60, .08); }
+	body.bc-flow .bc-summary .bc-sum__row--total .bc-money__n { font-size: 22px; }
+	body.bc-flow .bc-summary__cta { display: flex; min-height: 58px; font-size: 18px; }
+	body.bc-flow .bc-summary__note { display: block; }
+}
+
+/* ---------- Empty cart ---------- */
+body.bc-flow .bc-empty { display: flex; flex-direction: column; align-items: center; gap: 14px; max-width: 460px; margin: 0 auto; padding: 48px 8px 24px; text-align: center; }
+body.bc-flow .bc-empty__icon { display: flex; align-items: center; justify-content: center; width: 112px; height: 112px; border-radius: 56px; background: var(--bc-blue-soft); color: var(--bc-blue); }
+body.bc-flow .bc-empty__title { margin: 8px 0 0; font-size: 18px; font-weight: 800; }
+body.bc-flow .bc-empty__text { margin: 0; color: var(--bc-muted); font-size: 14px; line-height: 1.9; }
+body.bc-flow .bc-empty .bc-btn { width: 100%; margin-top: 10px; }
+body.bc-flow .bc-empty__help { display: flex; flex-direction: column; align-items: center; margin: 18px 0 0; color: var(--bc-muted); font-size: 13px; }
+body.bc-flow .bc-empty__tel { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--bc-blue); font-size: 14px; font-weight: 700; direction: ltr; }
+
+/* ---------- While a change is on its way ---------- */
+body.bc-flow .bc-cart.is-busy .bc-summary, body.bc-flow .bc-cart.is-busy .bc-coupon__applied { opacity: .6; transition: opacity .15s; }
+
+/* Space under the page for the fixed bottom bar (mobile only; the bar is hidden on desktop). */
+@media (max-width: 1024px) {
+	body.bc-flow--cart { padding-bottom: calc(var(--bc-bar-h) + env(safe-area-inset-bottom, 0px)); }
+}

@@ -15,11 +15,11 @@ function bc_linked_fields() {
 	return array(
 		'_bc_complementary_ids' => array(
 			'label' => 'محصولات مکمل',
-			'tip'   => 'محصولاتی که معمولاً همراه این کالا خریداری می‌شوند (مثلاً قاب، محافظ صفحه، ابزار تعویض باتری). در سبد خرید و صفحهٔ محصول پیشنهاد داده می‌شوند.',
+			'tip'   => 'محصولاتی که معمولاً همراه این کالا خریداری می‌شوند (مثلاً قاب، محافظ صفحه، ابزار تعویض باتری). در سبد خرید و صفحهٔ محصول پیشنهاد داده می‌شوند. اگر خالی بماند، شارژر و کابل هم‌برند و پاوربانک خودکار پیشنهاد می‌شود.',
 		),
 		'_bc_related_ids'      => array(
 			'label' => 'محصولات مرتبط',
-			'tip'   => 'محصولات مشابه یا جایگزین که در صفحهٔ این کالا نمایش داده می‌شوند. اگر خالی بماند، پیش‌فرض ووکامرس استفاده می‌شود.',
+			'tip'   => 'محصولات مشابه یا جایگزین که در صفحهٔ این کالا نمایش داده می‌شوند. اگر خالی بماند، پیشنهاد خودکار (هم‌برند، هم‌دسته، مدل و قیمت نزدیک) نمایش داده می‌شود.',
 		),
 	);
 }
@@ -39,11 +39,14 @@ function bc_get_linked_ids( $product_id, $meta_key, $limit = 0 ) {
 	}
 	return $limit > 0 ? array_slice( $out, 0, (int) $limit ) : $out;
 }
+/* Manual list first; when it is empty the automatic suggestions (inc/recommend.php) take over. */
 function bc_get_complementary_ids( $product_id, $limit = 0 ) {
-	return bc_get_linked_ids( $product_id, '_bc_complementary_ids', $limit );
+	$ids = bc_get_linked_ids( $product_id, '_bc_complementary_ids', $limit );
+	return ( ! $ids && function_exists( 'bc_reco_complementary' ) ) ? bc_reco_complementary( $product_id, $limit ) : $ids;
 }
 function bc_get_related_ids( $product_id, $limit = 0 ) {
-	return bc_get_linked_ids( $product_id, '_bc_related_ids', $limit );
+	$ids = bc_get_linked_ids( $product_id, '_bc_related_ids', $limit );
+	return ( ! $ids && function_exists( 'bc_reco_related' ) ) ? bc_reco_related( $product_id, $limit ) : $ids;
 }
 
 /* Admin: fields in the Linked Products tab. */

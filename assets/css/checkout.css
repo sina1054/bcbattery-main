@@ -1,1 +1,167 @@
-/* BC checkout - styles come here. */
+/*
+ * BC Battery - checkout page (steps 2 and 3). Shared pieces (buttons, cards, alerts, price rows, bottom bar, sheet)
+ * are in flow.css. Everything is scoped to body.bc-flow. Mobile first; one breakpoint at 1025px.
+ */
+
+/* ---------- Views: the page shows "details" (step 2) or "pay" (step 3) ---------- */
+body.bc-flow .bc-checkout[data-view="details"] .bc-view-pay,
+body.bc-flow .bc-checkout[data-view="pay"] .bc-view-details { display: none; }
+/* Phones: the summary card belongs to the payment step; until then the bottom bar carries the total. */
+@media (max-width: 1024px) {
+	body.bc-flow .bc-checkout[data-view="details"] .bc-col--side { display: none; }
+	body.bc-flow .bc-checkout { padding-bottom: calc(var(--bc-bar-h) + 24px + env(safe-area-inset-bottom, 0px)); }
+}
+body.bc-flow .bc-stack { display: flex; flex-direction: column; gap: 10px; }
+@media (min-width: 1025px) { body.bc-flow .bc-stack { gap: 16px; } }
+body.bc-flow .bc-form { margin: 0; padding: 0; }
+
+/* ---------- Cards ---------- */
+body.bc-flow .bc-formcard { display: flex; flex-direction: column; gap: 14px; padding: 16px; }
+body.bc-flow .bc-card__title { margin: 0; color: var(--bc-ink); font-family: inherit; font-size: 15px; font-weight: 800; line-height: 1.5; text-transform: none; }
+body.bc-flow .bc-card__sub { color: var(--bc-muted); font-size: 12.5px; font-weight: 400; }
+body.bc-flow .bc-hint { margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--bc-surface); color: var(--bc-muted); font-size: 12.5px; line-height: 1.9; }
+@media (min-width: 1025px) {
+	body.bc-flow .bc-formcard { padding: 20px; }
+	body.bc-flow .bc-card__title { font-size: 16px; }
+}
+
+/* ---------- Fields (WooCommerce markup: p.form-row > label + span.woocommerce-input-wrapper > input) ---------- */
+body.bc-flow .bc-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 10px; }
+body.bc-flow .bc-fields .form-row { display: flex; flex-direction: column; gap: 6px; grid-column: 1 / -1; float: none; width: auto; min-width: 0; margin: 0; padding: 0; }
+body.bc-flow .bc-fields .form-row-first,
+body.bc-flow .bc-fields .form-row-last { grid-column: auto; }
+body.bc-flow .bc-fields #billing_country_field { display: none; }
+@media (min-width: 1025px) {
+	body.bc-flow .bc-fields { column-gap: 14px; }
+	body.bc-flow .bc-fields .bc-half-lg { grid-column: auto; }
+}
+body.bc-flow .bc-fields .form-row > label { display: block; margin: 0; color: var(--bc-ink); font-size: 13px; font-weight: 500; line-height: 1.5; }
+body.bc-flow .bc-fields .form-row .required { display: none; }
+body.bc-flow .bc-fields .form-row .optional { color: var(--bc-muted); font-weight: 400; }
+body.bc-flow .bc-fields .woocommerce-input-wrapper { display: block; width: 100%; }
+body.bc-flow .bc-fields input.input-text,
+body.bc-flow .bc-fields textarea,
+body.bc-flow .bc-fields select {
+	width: 100%; height: 52px; margin: 0; padding: 0 14px; border: 1px solid var(--bc-line-strong); border-radius: 8px; background-color: #fff; box-shadow: none;
+	color: var(--bc-ink); font: inherit; font-size: 16px; line-height: 1.5; box-sizing: border-box; transition: border-color .15s, box-shadow .15s;
+}
+body.bc-flow .bc-fields textarea { height: auto; min-height: 84px; padding: 12px 14px; line-height: 1.8; resize: none; }
+body.bc-flow .bc-fields ::placeholder { color: #8A8F98; font-size: 14px; opacity: 1; }
+body.bc-flow .bc-fields input:focus,
+body.bc-flow .bc-fields textarea:focus,
+body.bc-flow .bc-fields select:focus { border-color: var(--bc-blue); outline: 0; box-shadow: 0 0 0 3px color-mix(in srgb, var(--bc-blue) 16%, transparent); }
+/* Numbers read left to right but sit at the right edge, like the rest of the form. */
+body.bc-flow .bc-fields .bc-ltr input { direction: ltr; text-align: right; }
+body.bc-flow .bc-fields .bc-ltr input::placeholder { direction: rtl; text-align: right; }
+body.bc-flow .bc-fields .description { color: var(--bc-muted); font-size: 12.5px; line-height: 1.7; }
+
+/* PWS turns the state / city / district selects into select2 widgets (drawn by Woodmart's skin): same look as the inputs. */
+body.bc-flow .bc-fields .select2-container { display: block; width: 100% !important; margin: 0; }
+body.bc-flow .bc-fields .select2-container .select2-selection--single { display: flex; align-items: center; height: 52px; padding: 0 14px; border: 1px solid var(--bc-line-strong); border-radius: 8px; background-color: #fff; box-shadow: none; box-sizing: border-box; transition: border-color .15s, box-shadow .15s; }
+body.bc-flow .bc-fields .select2-container .select2-selection__rendered { flex: 1; min-width: 0; padding: 0; color: var(--bc-ink); font-size: 16px; line-height: 1.5; text-align: start; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.bc-flow .bc-fields .select2-container .select2-selection__placeholder { color: #8A8F98; font-size: 14px; }
+body.bc-flow .bc-fields .select2-container--open .select2-selection--single,
+body.bc-flow .bc-fields .select2-container--focus .select2-selection--single { border-color: var(--bc-blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--bc-blue) 16%, transparent); outline: 0; }
+body.bc-flow .select2-dropdown { border: 1px solid var(--bc-line-strong); border-radius: 8px; font-size: 15px; }
+body.bc-flow .select2-dropdown .select2-search__field { min-height: 44px; font-size: 16px; }
+body.bc-flow .select2-dropdown .select2-results__option { padding: 10px 14px; }
+
+/* Problems: red frame + message under the field (set by checkout.js). */
+body.bc-flow .bc-invalid input.input-text,
+body.bc-flow .bc-invalid textarea,
+body.bc-flow .bc-invalid select,
+body.bc-flow .bc-invalid .select2-selection { border: 1.5px solid #D92D20; background-color: #FFF8F7; }
+body.bc-flow .bc-err { display: flex; align-items: flex-start; gap: 6px; margin: 0; color: var(--bc-err); font-size: 12.5px; font-weight: 700; line-height: 1.7; }
+body.bc-flow .bc-err .bc-i { margin-top: 3px; }
+
+/* ---------- Options: delivery methods and payment methods (native radios, drawn by CSS) ---------- */
+body.bc-flow .bc-opts { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+body.bc-flow .bc-opts > li { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+body.bc-flow .bc-opt {
+	position: relative; display: flex; align-items: center; gap: 12px; min-height: 64px; margin: 0; padding: 10px 14px; border: 1px solid var(--bc-line-strong); border-radius: 10px;
+	background: #fff; color: var(--bc-ink); cursor: pointer; box-sizing: border-box; transition: border-color .15s, background-color .15s, box-shadow .15s;
+}
+body.bc-flow .bc-paymethods .bc-opt { min-height: 52px; padding-block: 6px; }
+body.bc-flow .bc-opt:has(:checked) { border-color: var(--bc-blue); background: var(--bc-blue-soft); box-shadow: 0 0 0 1px var(--bc-blue); }
+body.bc-flow .bc-opt:has(:focus-visible) { outline: 2px solid var(--bc-blue); outline-offset: 2px; }
+body.bc-flow .bc-opt__input { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+body.bc-flow .bc-opt__dot { flex: none; width: 20px; height: 20px; border: 2px solid #9AA1AD; border-radius: 50%; background: #fff; box-sizing: border-box; transition: border-color .12s, border-width .12s; }
+body.bc-flow .bc-opt:has(:checked) .bc-opt__dot { border: 6px solid var(--bc-blue); }
+body.bc-flow .bc-opt__text { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
+body.bc-flow .bc-opt__title { font-size: 14px; font-weight: 700; line-height: 1.5; }
+body.bc-flow .bc-opt__sub { color: var(--bc-muted); font-size: 12.5px; line-height: 1.6; }
+body.bc-flow .bc-opt__cost { flex: none; font-size: 13px; line-height: 1.5; text-align: end; }
+body.bc-flow .bc-opt__cost--collect { max-width: 112px; font-size: 12px; font-weight: 500; }
+body.bc-flow .bc-ok { color: var(--bc-ok); font-weight: 700; }
+body.bc-flow .bc-opt__icon:empty { display: none; }
+body.bc-flow .bc-opt__icon img { display: block; width: auto; max-width: 72px; height: 32px; border-radius: 6px; object-fit: contain; filter: grayscale(1); opacity: .55; transition: filter .2s, opacity .2s; }
+body.bc-flow .bc-opt:has(:checked) .bc-opt__icon img { filter: none; opacity: 1; }
+body.bc-flow .bc-delivery.is-loading .bc-opts { opacity: .55; pointer-events: none; transition: opacity .15s; }
+body.bc-flow .bc-delivery > .bc-err { margin-top: -4px; }
+
+/* Gateway description / fields (WooCommerce shows the box of the chosen gateway). */
+body.bc-flow .bc-paymethods .payment_box { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--bc-surface); color: var(--bc-muted); font-size: 12.5px; line-height: 1.9; }
+body.bc-flow .bc-paymethods .payment_box::before { display: none; }
+body.bc-flow .bc-paymethods .payment_box p { margin: 0; }
+/* The real order button stays in the page (gateways and WooCommerce rely on it) but our buttons press it. */
+body.bc-flow .bc-place { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ---------- Summary (card on phones' payment step; part of the side card on desktop) ---------- */
+body.bc-flow .bc-sidecard { display: flex; flex-direction: column; gap: 12px; }
+body.bc-flow .bc-sumblock { display: flex; flex-direction: column; gap: 14px; padding: 16px; border: 1px solid var(--bc-line); border-radius: var(--bc-radius); background: #fff; font-size: 14px; }
+body.bc-flow .bc-sumblock__title { display: none; margin: 0; color: var(--bc-ink); font-family: inherit; font-size: 16px; font-weight: 800; text-transform: none; }
+body.bc-flow .bc-sumblock .bc-mini { display: none; }
+body.bc-flow .bc-sum__note { margin: 0; color: var(--bc-muted); font-size: 12px; line-height: 1.8; }
+body.bc-flow .bc-sidecard .bc-summary__cta { display: none; }
+body.bc-flow .bc-sidecard .bc-summary__note { display: none; margin: 0; color: var(--bc-muted); font-size: 12px; line-height: 1.8; text-align: center; }
+@media (min-width: 1025px) {
+	body.bc-flow .bc-sidecard { gap: 14px; padding: 22px; border: 1px solid var(--bc-line); border-radius: var(--bc-radius); background: #fff; box-shadow: 0 6px 24px rgba(20, 30, 60, .08); }
+	body.bc-flow .bc-sumblock { padding: 0; border: 0; border-radius: 0; background: none; }
+	body.bc-flow .bc-sumblock__title { display: block; }
+	body.bc-flow .bc-sumblock .bc-mini { display: flex; }
+	body.bc-flow .bc-sidecard .bc-sum__row--total .bc-money__n { font-size: 22px; }
+	body.bc-flow .bc-sidecard .bc-summary__cta { display: flex; min-height: 58px; font-size: 18px; }
+	body.bc-flow .bc-sidecard .bc-summary__note { display: block; }
+	body.bc-flow .bc-acc { display: none; }
+}
+
+/* Phones, step 2: the order in one collapsed line. */
+body.bc-flow .bc-acc { margin-bottom: 10px; border: 1px solid #D6E2FA; border-radius: var(--bc-radius); background: var(--bc-blue-soft); overflow: hidden; }
+body.bc-flow .bc-acc__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 56px; padding: 0 14px; color: var(--bc-blue); font-size: 14px; font-weight: 700; list-style: none; cursor: pointer; }
+body.bc-flow .bc-acc__head::-webkit-details-marker { display: none; }
+body.bc-flow .bc-acc__label { display: flex; align-items: center; gap: 8px; }
+body.bc-flow .bc-acc[open] .bc-acc__label .bc-i { transform: rotate(180deg); }
+body.bc-flow .bc-acc__total { color: var(--bc-ink); font-size: 15px; }
+body.bc-flow .bc-acc .bc-mini { padding: 12px 14px 14px; border-top: 1px solid #D6E2FA; background: #fff; }
+body.bc-flow .bc-acc__head:focus-visible { outline: 2px solid var(--bc-blue); outline-offset: -2px; }
+
+/* ---------- Terms ---------- */
+body.bc-flow .bc-check { position: relative; display: flex; align-items: flex-start; gap: 12px; min-height: 44px; margin: 0; padding: 0 4px; color: #3A3A3A; font-size: 13px; line-height: 1.9; cursor: pointer; }
+body.bc-flow .bc-check__input { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+body.bc-flow .bc-check__box { display: flex; flex: none; align-items: center; justify-content: center; width: 24px; height: 24px; margin-top: 2px; border: 2px solid #9AA1AD; border-radius: 6px; background: #fff; color: #fff; box-sizing: border-box; transition: background-color .15s, border-color .15s; }
+body.bc-flow .bc-check__box .bc-i { opacity: 0; }
+body.bc-flow .bc-check:has(:checked) .bc-check__box { border-color: var(--bc-blue); background: var(--bc-blue); }
+body.bc-flow .bc-check:has(:checked) .bc-check__box .bc-i { opacity: 1; }
+body.bc-flow .bc-check:has(:focus-visible) .bc-check__box { outline: 2px solid var(--bc-blue); outline-offset: 2px; }
+body.bc-flow .bc-check__text a { color: var(--bc-blue); font-weight: 700; text-decoration: none; }
+body.bc-flow .bc-terms.bc-invalid .bc-check__box { border-color: #D92D20; }
+body.bc-flow .bc-terms > .bc-err { margin: 4px 4px 0; }
+
+/* ---------- WooCommerce's own notices (session notices, update errors) in the flow's look ---------- */
+/* WooCommerce's own list and inline messages: checkout.js shows the same messages next to the fields. */
+body.bc-flow .woocommerce-NoticeGroup-checkout,
+body.bc-flow .checkout-inline-error-message { display: none; }
+body.bc-flow .bc-notices .woocommerce-error,
+body.bc-flow .bc-form .woocommerce-NoticeGroup-updateOrderReview .woocommerce-error {
+	margin: 0 0 10px; padding: 12px 14px; border: 1px solid var(--bc-err-line); border-radius: var(--bc-radius); background: var(--bc-err-bg); color: #7A1B12; font-size: 13px; line-height: 1.8; list-style: none;
+}
+body.bc-flow .bc-notices .woocommerce-message,
+body.bc-flow .bc-notices .woocommerce-info { margin: 0 0 10px; padding: 12px 14px; border: 1px solid var(--bc-warn-line); border-radius: var(--bc-radius); background: var(--bc-warn-bg); color: #5C3C00; font-size: 13px; line-height: 1.8; list-style: none; }
+body.bc-flow .bc-notices .woocommerce-error::before,
+body.bc-flow .bc-notices .woocommerce-message::before,
+body.bc-flow .bc-notices .woocommerce-info::before { display: none; }
+body.bc-flow .bc-notices li { margin: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+	body.bc-flow .bc-opt, body.bc-flow .bc-opt__dot, body.bc-flow .bc-opt__icon img, body.bc-flow .bc-check__box, body.bc-flow .bc-fields input, body.bc-flow .bc-fields textarea { transition: none; }
+}

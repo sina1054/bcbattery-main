@@ -1,1 +1,99 @@
-/* BC pay - styles come here. */
+/*
+ * BC Battery - payment results: success, placed, not paid yet, failed, moving to the bank.
+ * The payment page of an existing order (form-pay.php) is drawn with checkout.css; this file adds only what the result
+ * screens need. Shared pieces (buttons, alerts, cards, toast) are in flow.css. Scoped to body.bc-flow.
+ * Mobile first; one breakpoint at 1025px.
+ */
+
+/* ---------- Frame ---------- */
+body.bc-flow .bc-result { padding-bottom: 32px; }
+body.bc-flow .bc-result .bc-notices { margin-top: 12px; }
+body.bc-flow .bc-result__card { display: flex; flex-direction: column; gap: 14px; padding-top: 28px; }
+@media (min-width: 1025px) {
+	/* One white card in the middle, like the design; the bar with the page title is for phones. */
+	body.bc-flow .bc-result .bc-head { display: none; }
+	body.bc-flow .bc-result__card { width: 480px; max-width: 100%; margin: 24px auto 0; padding: 32px; gap: 16px; background: #fff; border: 1px solid var(--bc-line); border-radius: 16px; }
+}
+
+/* ---------- Hero: badge, title, text ---------- */
+body.bc-flow .bc-result__hero { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+body.bc-flow .bc-result__badge { display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; border-radius: 50%; background: var(--bc-ok-bg); }
+body.bc-flow .bc-result__mark { display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: #1F9D4D; color: #fff; }
+body.bc-flow .bc-result__mark .bc-i { stroke-width: 3; }
+body.bc-flow .bc-result__title { margin: 0; color: var(--bc-ok); font-family: inherit; font-size: 18px; font-weight: 800; line-height: 1.6; text-transform: none; }
+body.bc-flow .bc-result__sub { margin: 0; color: var(--bc-muted); font-size: 13px; line-height: 1.9; }
+body.bc-flow .bc-result__reason { align-self: stretch; margin: 0; padding: 8px 12px; border: 1px solid var(--bc-line); border-radius: 8px; background: #fff; color: var(--bc-muted); font-size: 12.5px; line-height: 1.8; }
+
+body.bc-flow .bc-result--err .bc-result__badge { background: var(--bc-err-bg); }
+body.bc-flow .bc-result--err .bc-result__mark { background: #D92D20; }
+body.bc-flow .bc-result--err .bc-result__title { color: var(--bc-err); }
+body.bc-flow .bc-result--warn .bc-result__badge { background: var(--bc-warn-bg); }
+body.bc-flow .bc-result--warn .bc-result__mark { background: #C77700; }
+body.bc-flow .bc-result--warn .bc-result__title { color: var(--bc-warn); }
+body.bc-flow .bc-result--go .bc-result__badge { background: var(--bc-blue-soft); }
+body.bc-flow .bc-result--go .bc-result__mark { background: var(--bc-blue); }
+body.bc-flow .bc-result--go .bc-result__title { color: var(--bc-ink); }
+
+body.bc-flow .bc-spin { width: 26px; height: 26px; border: 3px solid rgba(255, 255, 255, .45); border-top-color: #fff; border-radius: 50%; animation: bc-spin .8s linear infinite; }
+
+/* ---------- Facts: order number, bank code, gateway, amount, delivery ---------- */
+body.bc-flow .bc-facts { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 16px; border: 1px solid var(--bc-line); border-radius: var(--bc-radius); background: #fff; font-size: 13.5px; }
+body.bc-flow .bc-facts__row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0; }
+body.bc-flow .bc-facts__row--sep { padding-top: 12px; border-top: 1px solid var(--bc-line); }
+body.bc-flow .bc-facts dt { margin: 0; color: var(--bc-muted); font-weight: 400; }
+body.bc-flow .bc-facts dd { margin: 0; font-weight: 700; text-align: end; }
+body.bc-flow .bc-copy { appearance: none; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin: -12px 0; padding: 0; border: 0; border-radius: 6px; background: none; box-shadow: none; color: inherit; font: inherit; font-weight: 700; letter-spacing: normal; text-transform: none; cursor: pointer; }
+body.bc-flow .bc-copy .bc-i { color: var(--bc-blue); }
+body.bc-flow .bc-copy:focus-visible { outline: 2px solid var(--bc-blue); outline-offset: 2px; }
+
+/* ---------- Notes ---------- */
+body.bc-flow .bc-alert--collect { background: #FDECE4; border-color: #F6CDB8; color: #7A2E0A; }
+body.bc-flow .bc-alert--collect .bc-i { color: #C2410C; }
+body.bc-flow .bc-alert--info { background: #EEF3FD; border-color: #D6E2FA; color: #1F3F8F; }
+body.bc-flow .bc-alert--info .bc-i { color: var(--bc-blue); }
+body.bc-flow .bc-result__extra { padding: 12px 14px; border: 1px solid var(--bc-line); border-radius: var(--bc-radius); background: #fff; color: var(--bc-ink); font-size: 13px; line-height: 1.9; }
+body.bc-flow .bc-result__extra > :first-child { margin-top: 0; }
+body.bc-flow .bc-result__extra > :last-child { margin-bottom: 0; }
+
+/* WooCommerce's own notices in the flow's look. */
+body.bc-flow .bc-result .bc-notices .woocommerce-error { margin: 0 0 10px; padding: 12px 14px; border: 1px solid var(--bc-err-line); border-radius: var(--bc-radius); background: var(--bc-err-bg); color: #7A1B12; font-size: 13px; line-height: 1.8; list-style: none; }
+body.bc-flow .bc-result .bc-notices .woocommerce-message,
+body.bc-flow .bc-result .bc-notices .woocommerce-info { margin: 0 0 10px; padding: 12px 14px; border: 1px solid var(--bc-warn-line); border-radius: var(--bc-radius); background: var(--bc-warn-bg); color: #5C3C00; font-size: 13px; line-height: 1.8; list-style: none; }
+body.bc-flow .bc-result .bc-notices .woocommerce-error::before,
+body.bc-flow .bc-result .bc-notices .woocommerce-message::before,
+body.bc-flow .bc-result .bc-notices .woocommerce-info::before { display: none; }
+body.bc-flow .bc-result .bc-notices li { margin: 0; }
+
+/* ---------- Items and address (collapsed) ---------- */
+body.bc-flow .bc-more { border: 1px solid var(--bc-line); border-radius: var(--bc-radius); background: #fff; overflow: hidden; }
+body.bc-flow .bc-more > summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 52px; padding: 0 14px; color: var(--bc-blue); font-size: 14px; font-weight: 700; list-style: none; cursor: pointer; }
+body.bc-flow .bc-more > summary::-webkit-details-marker { display: none; }
+body.bc-flow .bc-more > summary:focus-visible { outline: 2px solid var(--bc-blue); outline-offset: -2px; }
+body.bc-flow .bc-more[open] > summary .bc-i { transform: rotate(180deg); }
+body.bc-flow .bc-more__body { display: flex; flex-direction: column; gap: 14px; padding: 14px; border-top: 1px solid var(--bc-line); }
+body.bc-flow .bc-more__addr { display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.9; }
+body.bc-flow .bc-more__addr address { margin: 0; font-style: normal; }
+
+/* ---------- Buttons ---------- */
+body.bc-flow .bc-result__actions { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+body.bc-flow .bc-result__actions .bc-btn { width: 100%; font-size: 16px; }
+body.bc-flow .bc-result__form { display: flex; margin: 0; }
+body.bc-flow .bc-btn--ghost { background: #fff; border: 1.5px solid var(--bc-blue); color: var(--bc-blue); }
+body.bc-flow .bc-btn--ghost:hover { background: var(--bc-blue-soft); color: var(--bc-blue); }
+body.bc-flow .bc-result__help { display: flex; flex-direction: column; align-items: center; margin: 6px 0 0; color: var(--bc-muted); font-size: 13px; }
+body.bc-flow .bc-result__tel { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--bc-blue); font-size: 14px; font-weight: 700; text-decoration: none; }
+
+@media (min-width: 1025px) {
+	body.bc-flow .bc-result__title { font-size: 20px; }
+	body.bc-flow .bc-result__reason,
+	body.bc-flow .bc-result__extra { border: 0; background: var(--bc-surface); }
+	body.bc-flow .bc-facts { padding: 20px; border: 0; background: var(--bc-surface); }
+	body.bc-flow .bc-more { border: 0; background: var(--bc-surface); }
+	body.bc-flow .bc-more__body { border-top-color: var(--bc-line-strong); }
+	body.bc-flow .bc-result__actions { flex-direction: row; gap: 12px; }
+	body.bc-flow .bc-result__actions > * { flex: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	body.bc-flow .bc-spin { animation-duration: 1.6s; }
+}
