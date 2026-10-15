@@ -1,11 +1,12 @@
 <?php
 /**
  * Plugin Name: BC Flow Speed
- * Description: Faster purchase flow. (1) Cart AJAX requests load only the plugins a cart change needs. (2) Cart and checkout pages skip plugin files they never use. Turn off with define( 'BC_FLOW_SPEED_DISABLE', true ) in wp-config.php.
- * Version:     1.0.0
+ * Description: Faster purchase flow. (1) Cart AJAX requests load only the plugins a cart change needs. (2) Query Monitor stays out of the way for visitors who are not signed in. (3) Cart and checkout pages skip three style files they never use. Turn off with define( 'BC_FLOW_SPEED_DISABLE', true ) in wp-config.php.
+ * Version:     1.1.0
  * Author:      BC Battery
  *
- * خلاصه: درخواست‌های AJAX سبد خرید فقط افزونه‌های لازم را بارگذاری می‌کنند و صفحه‌های سبد/تسویه فایل‌های بی‌استفاده را لود نمی‌کنند.
+ * خلاصه: درخواست‌های AJAX سبد خرید فقط افزونه‌های لازم را بارگذاری می‌کنند، Query Monitor برای بازدیدکننده‌ای که
+ * وارد نشده خاموش است، و سه فایل استایل بی‌استفاده از سبد و تسویه حذف می‌شود.
  * خاموش کردن کامل: در wp-config.php بنویسید define( 'BC_FLOW_SPEED_DISABLE', true );
  *
  * ---------------------------------------------------------------------------------------------------------
@@ -25,7 +26,14 @@
  * (see bc_flow_speed_protect_option), so no plugin is ever deactivated by this file.
  *
  * ---------------------------------------------------------------------------------------------------------
- * PART 2 - Lighter cart and checkout pages
+ * PART 2 - Query Monitor stays out of a visitor's request
+ *
+ * Query Monitor shows its panel to signed-in people who have permission, and to nobody else. For a visitor
+ * who is not signed in it still loaded about 80 files on every request and - the expensive part - switched
+ * WordPress to recording every database query together with its call stack (SAVEQUERIES).
+ *
+ * ---------------------------------------------------------------------------------------------------------
+ * PART 3 - Lighter cart and checkout pages
  *
  * Styles that Elementor Pro adds to every page, but which nothing on the cart or checkout page uses
  * (the flow templates render these pages; the header block uses Elementor free only).
@@ -122,7 +130,39 @@ if ( bc_flow_speed_is_cart_ajax() ) {
 }
 
 /* ========================================================================================================= */
-/* PART 2 - Lighter cart and checkout pages                                                                   */
+/* PART 2 - Query Monitor stays out of a visitor's request                                                    */
+/* ========================================================================================================= */
+
+/**
+ * Is someone signed in? Read straight from the cookie, because this is decided before WordPress has loaded
+ * the user. The cookie's full name is compared, so no other cookie can be mistaken for it.
+ */
+function bc_flow_speed_signed_in() {
+	$cookie = defined( 'LOGGED_IN_COOKIE' ) ? LOGGED_IN_COOKIE : 'wordpress_logged_in_';
+	foreach ( array_keys( $_COOKIE ) as $name ) {
+		if ( 0 === strpos( (string) $name, $cookie ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * QM_DISABLED is Query Monitor's own way of being told to stay out of a request. It is defined here, at the
+ * moment WordPress reads the list of plugins, which is the last point before it loads them. The list itself
+ * is handed back untouched. Sign in and Query Monitor works exactly as before; it is never deactivated, and
+ * turning it off in the admin is still the cheapest option while nobody is debugging the site.
+ */
+function bc_flow_speed_quiet_query_monitor( $plugins ) {
+	if ( ! defined( 'QM_DISABLED' ) && ! is_admin() && ! bc_flow_speed_signed_in() ) {
+		define( 'QM_DISABLED', true );
+	}
+	return $plugins;
+}
+add_filter( 'option_active_plugins', 'bc_flow_speed_quiet_query_monitor', 1 );
+
+/* ========================================================================================================= */
+/* PART 3 - Lighter cart and checkout pages                                                                  */
 /* ========================================================================================================= */
 
 /** Style handles (as registered) that the cart and checkout pages do not use. */

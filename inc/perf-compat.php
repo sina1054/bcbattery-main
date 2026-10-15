@@ -122,3 +122,18 @@ add_action( 'wp_head', function () {
 	}
 	echo '<meta id="perfmatters-cart-fragments" name="bc-cart-fragments" content="skipped">' . "\n";
 }, 1 );
+
+/*
+ * ArContactUs (floating contact button): when no animation is chosen for the desktop button, the plugin prints
+ * $arcuWidget.classList.add('') inside its "arcontactus.init" listener. An empty class name throws, and the
+ * rest of that listener - the part that builds the button's menu - never runs. The setting belongs to the
+ * plugin, so nothing is saved here: an empty value is swapped, for this request only, for a class name that
+ * has no styles of its own, so the call succeeds and nothing moves. Choose an animation in the plugin's
+ * settings and this does nothing at all.
+ */
+add_filter( 'option_arcub', function ( $value ) {
+	if ( is_admin() || ! is_string( $value ) ) {
+		return $value; // The settings page must see the real value.
+	}
+	return str_replace( '"ARCUB_ANIMATION":""', '"ARCUB_ANIMATION":"arcuNoAnimation"', $value );
+} );
