@@ -549,3 +549,17 @@ add_action( 'wp_enqueue_scripts', function () {
 	bc_enqueue_module( 'bc-checkout', 'checkout.css', 'checkout.js', array( 'bc-flow', 'jquery', 'wc-checkout' ), array( 'bc-flow' ) );
 	wp_add_inline_script( 'bc-checkout', 'window.bcCheckout=' . wp_json_encode( bc_checkout_js_data() ) . ';', 'before' );
 }, 21 );
+
+/*
+ * WP-Parsidate ships its own state -> city script ("wc-city-select"). On this shop the state and city lists come from
+ * Persian WooCommerce Shipping (PWS) instead, so Parsidate's script finds no city data and throws on every state change.
+ * That error stops select2 half-way: the choice is made but the list stays open until the visitor taps somewhere else.
+ * PWS already does the job, so Parsidate's copy is not loaded on the checkout.
+ */
+function bc_checkout_drop_parsidate_cities() {
+	if ( function_exists( 'is_checkout' ) && is_checkout() && class_exists( 'PWS_Core' ) ) {
+		wp_dequeue_script( 'wc-city-select' );
+	}
+}
+add_action( 'wp_enqueue_scripts', 'bc_checkout_drop_parsidate_cities', 9999 );
+add_action( 'wp_print_footer_scripts', 'bc_checkout_drop_parsidate_cities', 1 );
