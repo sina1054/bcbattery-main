@@ -60,7 +60,8 @@ $cur   = esc_html( get_woocommerce_currency_symbol() );
 								<?php if ( $c['choose'] ) : ?>
 									<a class="bcp-btn bcp-btn--outline bcp-sc__add" href="<?php echo esc_url( $c['url'] ); ?>">انتخاب</a>
 								<?php else : ?>
-									<button type="button" class="bcp-btn bcp-btn--outline bcp-sc__add" data-bcp="sc-add"><span class="bcp-sc__t-add">افزودن</span><span class="bcp-sc__t-done">✓ اضافه شد</span></button>
+									<button type="button" class="bcp-btn bcp-add bcp-sc__add" data-bcp="sc-add"><?php echo bc_icon( 'plus', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput ?><span class="bcp-sc__t-add">افزودن</span><span class="bcp-sc__t-done">اضافه شد</span></button>
+									<?php echo bc_pdp_mini_step(); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 								<?php endif; ?>
 							</article>
 						<?php endforeach; ?>

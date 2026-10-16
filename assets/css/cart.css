@@ -143,3 +143,25 @@ body.bc-flow .bc-cart.is-busy .bc-summary, body.bc-flow .bc-cart.is-busy .bc-cou
 body.bc-flow .bc-qty__btn[data-bc-act="inc"] { background: #E7F6EC; color: #15803D; }
 body.bc-flow .bc-qty__btn[data-bc-act="dec"],
 body.bc-flow .bc-qty__btn[data-bc-act="remove"] { background: #FDECEC; color: #C62828; }
+
+/* Complementary cards: lighter add button, and a small stepper once the product is in the cart. */
+body.bc-flow .bc-comp__card { gap: 6px; box-shadow: 0 1px 4px rgba(29, 87, 208, .06); }
+body.bc-flow .bc-comp__img { height: 88px; }
+body.bc-flow .bc-comp__name { font-size: 12.5px; }
+body.bc-flow .bc-comp__price { font-weight: 800; }
+body.bc-flow .bc-comp__add { gap: 4px; min-height: 36px; height: 36px; padding: 0 10px; border: 0; border-radius: 10px; background: var(--bc-blue-soft); color: var(--bc-blue); font-size: 12.5px; font-weight: 700; }
+body.bc-flow .bc-comp__add:hover { background: #E1EAFB; color: var(--bc-blue); }
+body.bc-flow .bc-comp__add[hidden], body.bc-flow .bc-mq[hidden] { display: none; }
+body.bc-flow a.bc-comp__add { border: 1px solid var(--bc-blue); background: #fff; }
+body.bc-flow .bc-mq { display: flex; align-items: center; gap: 2px; height: 36px; margin-top: auto; padding: 2px; border: 1px solid var(--bc-line); border-radius: 10px; background: #fff; }
+body.bc-flow .bc-mq.is-pending { opacity: .75; }
+body.bc-flow .bc-mq__btn { display: flex; flex: none; align-items: center; justify-content: center; width: 34px; height: 30px; padding: 0; border: 0; border-radius: 8px; cursor: pointer; }
+body.bc-flow .bc-mq__btn--inc { background: #E7F6EC; color: #15803D; }
+body.bc-flow .bc-mq__btn--dec { background: #FDECEC; color: #C62828; }
+body.bc-flow .bc-mq__btn:disabled { opacity: .4; cursor: not-allowed; }
+body.bc-flow .bc-mq__btn:focus-visible { outline: 2px solid var(--bc-blue); outline-offset: 2px; }
+body.bc-flow .bc-mq .bc-mq__n { flex: 1; min-width: 0; font-size: 14px; font-weight: 800; text-align: center; }
+body.bc-flow .bc-mq.is-one [data-bc-act="dec"], body.bc-flow .bc-mq:not(.is-one) [data-bc-act="remove"] { display: none; }
+@media (min-width: 1025px) {
+	body.bc-flow .bc-comp__img { height: 104px; }
+}

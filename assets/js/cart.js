@@ -267,11 +267,22 @@
 		if (name) {
 			name.textContent = chip.textContent;
 		}
+		// In the cart already: the stepper (on that variant's cart line) instead of the add button.
 		var btn = $('.bc-comp__add', card);
-		var inCart = chip.getAttribute('data-in-cart') === '1';
+		var step = $('[data-bc-line]', card);
+		var key = chip.getAttribute('data-key') || '';
+		var qty = parseInt(chip.getAttribute('data-qty'), 10) || 1;
+		var max = parseInt(chip.getAttribute('data-max'), 10);
 		if (btn) {
-			btn.classList.toggle('is-added', inCart);
-			btn.disabled = inCart;
+			btn.hidden = !!key;
+		}
+		if (step) {
+			step.hidden = !key;
+			step.setAttribute('data-key', key);
+			step.setAttribute('data-qty', String(qty));
+			step.classList.toggle('is-one', qty <= 1);
+			$('.bc-qty__n', step).textContent = qty.toLocaleString('en-US');
+			$('[data-bc-act="inc"]', step).disabled = max > -1 && qty >= max;
 		}
 	}
 
@@ -335,7 +346,7 @@
 		if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true') {
 			return;
 		}
-		var line = el.closest('.bc-line');
+		var line = el.closest('.bc-line, [data-bc-line]'); // [data-bc-line]: the small stepper on a complementary card
 		var card = el.closest('.bc-comp__card');
 
 		switch (el.getAttribute('data-bc-act')) {

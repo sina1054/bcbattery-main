@@ -564,3 +564,29 @@ html.bcp-lock{overflow:hidden;scrollbar-gutter:stable}
 /* Quantity stepper colours: add = green, decrease / remove (minus or trash icon) = red. */
 .bcp-page .bcp-step__btn[data-bcp="inc"]{background:#E7F6EC;color:#15803D}
 .bcp-page .bcp-step__btn[data-bcp="dec"]{background:#FDECEC;color:#C62828}
+
+/* Product cards (related / upsells / after-add sheet): lighter add button, and a small stepper once in the cart. */
+.bcp-page .bcp-pc{gap:6px;padding:8px;border-radius:14px}
+.bcp-page .bcp-pc__img{border-radius:10px}
+.bcp-page .bcp-pc__price{font-weight:800}
+.bcp-page .bcp-pc .bcp-btn,.bcp-page .bcp-sc__add{min-height:36px;height:36px;padding:0 10px;border-radius:10px;font-size:12.5px;gap:4px}
+.bcp-page .bcp-add{border:0;background:var(--bcp-soft);color:var(--bcp-c)}
+.bcp-page .bcp-add:hover{background:#E1EAFB}
+.bcp-page .bcp-add svg{flex:none}
+.bcp-page .bcp-add[hidden]{display:none}
+.bcp-page .bcp-add.is-loading{opacity:.6;pointer-events:none}
+.bcp-page .bcp-mq{display:flex;align-items:center;gap:2px;height:36px;margin-top:auto;padding:2px;border:1px solid var(--bcp-line);border-radius:10px;background:#fff}
+.bcp-page .bcp-mq[hidden]{display:none}
+.bcp-page .bcp-mq[aria-busy=true]{opacity:.6;pointer-events:none}
+.bcp-page .bcp-mq__btn{display:flex;flex:none;align-items:center;justify-content:center;width:34px;height:30px;padding:0;border:0;border-radius:8px;cursor:pointer}
+.bcp-page .bcp-mq__btn svg{display:block}
+.bcp-page .bcp-mq__btn--inc{background:#E7F6EC;color:#15803D}
+.bcp-page .bcp-mq__btn--dec{background:#FDECEC;color:#C62828}
+.bcp-page .bcp-mq__btn:disabled{opacity:.4;cursor:not-allowed}
+.bcp-page .bcp-mq__n{flex:1;min-width:0;font-size:14px;font-weight:800;text-align:center}
+.bcp-page .bcp-mq .bcp-ic-trash,.bcp-page .bcp-mq .bcp-ic-minus{display:flex}
+.bcp-page .bcp-mq.is-one .bcp-ic-minus,.bcp-page .bcp-mq:not(.is-one) .bcp-ic-trash{display:none}
+@media (min-width:1025px){
+.bcp-page .bcp-sc .bcp-mq{grid-row:1;width:104px;margin-top:0}
+}
+.bcp-page .bcp-mq__btn:focus-visible{outline:2px solid var(--bcp-c);outline-offset:2px}

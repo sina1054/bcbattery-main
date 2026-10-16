@@ -734,24 +734,64 @@
 		renderBuy();
 	}
 
-	/* Product cards (related / upsells): simple products add straight from the card. */
+	/*
+	 * Product cards (related / upsells / the after-add sheet): simple products add straight from the card, and once
+	 * a card's product is in the cart its add button gives way to a small stepper (+ / count / - or bin), so the
+	 * visitor can change or remove it without leaving the page. The stepper follows the cart, whoever changed it.
+	 */
+	function miniCardId(mq) {
+		var card = mq.closest('[data-pid]');
+		return card ? parseInt(card.getAttribute('data-vid'), 10) || parseInt(card.getAttribute('data-pid'), 10) : 0;
+	}
+	function syncMini() {
+		$$('[data-bcp-mq]').forEach(function (mq) {
+			var card = mq.closest('[data-pid]');
+			var line = lineFor(miniCardId(mq));
+			var add = card && card.querySelector('[data-bcp-add], [data-bcp="sc-add"]');
+			mq.hidden = !line;
+			if (add) {
+				add.hidden = !!line;
+			}
+			if (!line) {
+				return;
+			}
+			var q = line.quantity;
+			var one = q <= 1;
+			var inc = mq.querySelector('[data-bcp-mq-act="inc"]');
+			setText(mq.querySelector('[data-bcp-mq-n]'), fa(q));
+			mq.classList.toggle('is-one', one);
+			mq.querySelector('[data-bcp-mq-act="dec"]').setAttribute('aria-label', one ? '\u062D\u0630\u0641 \u0627\u0632 \u0633\u0628\u062F' : '\u06A9\u0627\u0647\u0634 \u062A\u0639\u062F\u0627\u062F');
+			inc.disabled = !!(line.max && q >= line.max);
+		});
+	}
 	function initCards() {
+		cartListeners.push(syncMini);
 		on(doc, 'click', function (e) {
+			var step = e.target.closest('[data-bcp-mq-act]');
+			if (step) {
+				var mq = step.closest('[data-bcp-mq]');
+				var line = lineFor(miniCardId(mq));
+				if (!line || mq.getAttribute('aria-busy') === 'true') {
+					return;
+				}
+				var q = line.quantity;
+				var up = step.getAttribute('data-bcp-mq-act') === 'inc';
+				busy(mq, true);
+				(up ? updateItem(line.key, q + 1) : q <= 1 ? removeItem(line.key) : updateItem(line.key, q - 1))
+					.catch(function (err) {
+						toast(errorText(err));
+					})
+					.then(function () {
+						busy(mq, false);
+					});
+				return;
+			}
 			var btn = e.target.closest('[data-bcp-add]');
 			if (!btn) {
 				return;
 			}
-			var original = btn.textContent;
 			busy(btn, true);
-			addItem(parseInt(btn.getAttribute('data-bcp-add'), 10), 1)
-				.then(function () {
-					btn.classList.add('is-added');
-					btn.textContent = '\u2713 \u0627\u0636\u0627\u0641\u0647 \u0634\u062F';
-					setTimeout(function () {
-						btn.classList.remove('is-added');
-						btn.textContent = original;
-					}, 2500);
-				})
+			addItem(parseInt(btn.getAttribute('data-bcp-add'), 10), 1) // the cart answer swaps the button for the stepper
 				.catch(function (err) {
 					toast(errorText(err));
 				})
@@ -1105,6 +1145,7 @@
 				setText(el('sc-varname', card), pill.textContent);
 				setText(el('sc-price', card), pill.getAttribute('data-price'));
 				syncComp();
+				syncMini(); // the chosen variant may be the one in the cart
 			} else if (add && card && !card.classList.contains('is-added')) {
 				card.classList.add('is-loading');
 				addItem(cardId(card), 1)

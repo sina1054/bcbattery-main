@@ -32,7 +32,7 @@ if ( empty( $d['comp'] ) ) {
 						<span class="bc-comp__label"><?php echo esc_html( $c['label'] ); ?>: <b data-bc-varname><?php foreach ( $c['variants'] as $v ) { if ( (int) $v['id'] === (int) $c['selected'] ) { echo esc_html( $v['label'] ); } } ?></b></span>
 						<div class="bc-chips" role="group" aria-label="<?php echo esc_attr( $c['label'] ); ?>">
 							<?php foreach ( $c['variants'] as $v ) : ?>
-								<button type="button" class="bc-chip" data-bc-act="comp_var" data-vid="<?php echo (int) $v['id']; ?>" data-price="<?php echo esc_attr( number_format_i18n( round( $v['price'] ) ) ); ?>" data-in-cart="<?php echo $v['in_cart'] ? '1' : '0'; ?>" aria-pressed="<?php echo (int) $v['id'] === (int) $c['selected'] ? 'true' : 'false'; ?>"><?php echo esc_html( $v['label'] ); ?></button>
+								<button type="button" class="bc-chip" data-bc-act="comp_var" data-vid="<?php echo (int) $v['id']; ?>" data-price="<?php echo esc_attr( number_format_i18n( round( $v['price'] ) ) ); ?>" data-in-cart="<?php echo $v['in_cart'] ? '1' : '0'; ?>" data-key="<?php echo esc_attr( $v['line'] ? $v['line']['key'] : '' ); ?>" data-qty="<?php echo (int) ( $v['line'] ? $v['line']['qty'] : 0 ); ?>" data-max="<?php echo (int) ( $v['line'] ? $v['line']['max'] : -1 ); ?>" aria-pressed="<?php echo (int) $v['id'] === (int) $c['selected'] ? 'true' : 'false'; ?>"><?php echo esc_html( $v['label'] ); ?></button>
 							<?php endforeach; ?>
 						</div>
 					</div>
@@ -41,10 +41,21 @@ if ( empty( $d['comp'] ) ) {
 				<?php if ( $c['choose'] ) : ?>
 					<a class="bc-btn bc-btn--outline bc-comp__add" href="<?php echo esc_url( $c['url'] ); ?>">انتخاب گزینه‌ها</a>
 				<?php else : ?>
-					<button type="button" class="bc-btn bc-btn--primary bc-comp__add<?php echo $c['in_cart'] ? ' is-added' : ''; ?>" data-bc-act="comp_add"<?php echo $c['in_cart'] ? ' disabled' : ''; ?>>
-						<?php echo bc_icon( 'plus', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput ?><?php echo bc_icon( 'check', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
-						<span class="bc-comp__lbl-add">افزودن</span><span class="bc-comp__lbl-done">اضافه شد</span>
+					<?php
+					$line = $c['line'];
+					if ( $c['variants'] ) { // the stepper follows the chosen variant
+						$line = null;
+						foreach ( $c['variants'] as $v ) {
+							if ( (int) $v['id'] === (int) $c['selected'] ) {
+								$line = $v['line'];
+							}
+						}
+					}
+					?>
+					<button type="button" class="bc-btn bc-comp__add" data-bc-act="comp_add"<?php echo $line ? ' hidden' : ''; ?>>
+						<?php echo bc_icon( 'plus', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput ?><span>افزودن</span>
 					</button>
+					<?php bc_comp_mini_step( $line ); ?>
 				<?php endif; ?>
 			</article>
 		<?php endforeach; ?>

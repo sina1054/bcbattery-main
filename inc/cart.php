@@ -146,12 +146,13 @@ function bc_cart_comp_cards( array $rows ) {
 	if ( ! function_exists( 'bc_get_complementary_ids' ) || ! $rows ) {
 		return array();
 	}
-	$in_cart = array(); // product id => true, variation id => true
+	$in_cart = array(); // product id / variation id => its cart line (key, qty, max), for the card steppers
 	$score   = array();
 	foreach ( $rows as $r ) {
-		$in_cart[ $r['pid'] ] = true;
+		$line                 = array( 'key' => (string) $r['key'], 'qty' => (int) $r['qty'], 'max' => (int) $r['max'] );
+		$in_cart[ $r['pid'] ] = $line;
 		if ( $r['product']->is_type( 'variation' ) ) {
-			$in_cart[ $r['product']->get_id() ] = true;
+			$in_cart[ $r['product']->get_id() ] = $line;
 		}
 		foreach ( bc_get_complementary_ids( $r['pid'] ) as $id ) {
 			$score[ $id ] = ( isset( $score[ $id ] ) ? $score[ $id ] : 0 ) + 1;
@@ -184,6 +185,7 @@ function bc_comp_cards( array $ids, array $in_cart = array(), $limit = 8 ) {
 			'selected' => 0,
 			'price'    => (float) wc_get_price_to_display( $p ),
 			'in_cart'  => isset( $in_cart[ $p->get_id() ] ),
+			'line'     => bc_comp_line( $in_cart, $p->get_id() ),
 		);
 		if ( $p->is_type( 'variable' ) ) {
 			$card = bc_cart_comp_variants( $p, $card, $in_cart );
@@ -197,6 +199,27 @@ function bc_comp_cards( array $ids, array $in_cart = array(), $limit = 8 ) {
 	}
 	return $cards;
 }
+/** The cart line (key, qty, max) of a product or variation, or null when it is not in the cart (or not known here). */
+function bc_comp_line( array $in_cart, $id ) {
+	return ( isset( $in_cart[ $id ] ) && is_array( $in_cart[ $id ] ) ) ? $in_cart[ $id ] : null;
+}
+
+/**
+ * Small quantity stepper for a complementary card, shown once the product is in the cart (instead of the add button).
+ * Its buttons are the cart lines' own (data-bc-act inc / dec / remove on a [data-bc-line] with the line's key), so
+ * cart.js handles them like any other line. Empty $line: rendered hidden, for a variant that may be picked later.
+ */
+function bc_comp_mini_step( $line ) {
+	$q   = $line ? (int) $line['qty'] : 1;
+	$top = $line && $line['max'] > -1 && $q >= $line['max'];
+	echo '<div class="bc-mq' . ( $q <= 1 ? ' is-one' : '' ) . '" data-bc-line data-key="' . esc_attr( $line ? $line['key'] : '' ) . '" data-qty="' . (int) $q . '" role="group" aria-label="تعداد در سبد خرید"' . ( $line ? '' : ' hidden' ) . '>';
+	echo '<button type="button" class="bc-mq__btn bc-mq__btn--inc" data-bc-act="inc" aria-label="افزایش تعداد"' . ( $top ? ' disabled' : '' ) . '>' . bc_icon( 'plus', 16 ) . '</button>'; // phpcs:ignore WordPress.Security.EscapeOutput
+	echo '<span class="bc-mq__n bc-qty__n" aria-live="polite">' . esc_html( number_format_i18n( $q ) ) . '</span>';
+	echo '<button type="button" class="bc-mq__btn bc-mq__btn--dec" data-bc-act="dec" aria-label="کاهش تعداد">' . bc_icon( 'minus', 16 ) . '</button>'; // phpcs:ignore WordPress.Security.EscapeOutput
+	echo '<button type="button" class="bc-mq__btn bc-mq__btn--dec" data-bc-act="remove" aria-label="حذف از سبد">' . bc_icon( 'trash', 15 ) . '</button>'; // phpcs:ignore WordPress.Security.EscapeOutput
+	echo '</div>';
+}
+
 /** Chips for a variable product that varies by exactly one attribute; otherwise "choose" (link to the product page). */
 function bc_cart_comp_variants( WC_Product_Variable $p, array $card, array $in_cart ) {
 	$attrs = $p->get_variation_attributes();
@@ -232,6 +255,7 @@ function bc_cart_comp_variants( WC_Product_Variable $p, array $card, array $in_c
 			'label'   => $label,
 			'price'   => (float) wc_get_price_to_display( $v ),
 			'in_cart' => isset( $in_cart[ $v->get_id() ] ),
+			'line'    => bc_comp_line( $in_cart, $v->get_id() ),
 			'default' => $slug === $default,
 		);
 	}

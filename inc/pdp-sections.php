@@ -108,7 +108,7 @@ function bc_pdp_after_tabs() {
 function bc_pdp_card( WC_Product $p ) {
 	$url   = $p->get_permalink();
 	$price = '' === $p->get_price() ? 0 : (float) wc_get_price_to_display( $p );
-	echo '<article class="bcp-pc">';
+	echo '<article class="bcp-pc" data-pid="' . (int) $p->get_id() . '">';
 	echo '<a class="bcp-pc__img" href="' . esc_url( $url ) . '" tabindex="-1" aria-hidden="true">' . $p->get_image( 'woocommerce_thumbnail', array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '', 'sizes' => '(max-width: 767px) 160px, 190px' ) ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	echo '<a class="bcp-pc__name" href="' . esc_url( $url ) . '">' . esc_html( $p->get_name() ) . '</a>';
 	echo '<div class="bcp-pc__price">';
@@ -121,11 +121,25 @@ function bc_pdp_card( WC_Product $p ) {
 	if ( ! $p->is_in_stock() ) {
 		echo '<span class="bcp-btn bcp-btn--ghost" aria-disabled="true">ناموجود</span>';
 	} elseif ( $p->is_type( 'simple' ) && $p->is_purchasable() && $price > 0 ) {
-		echo '<button type="button" class="bcp-btn bcp-btn--outline" data-bcp-add="' . (int) $p->get_id() . '">افزودن به سبد</button>';
+		echo '<button type="button" class="bcp-btn bcp-add" data-bcp-add="' . (int) $p->get_id() . '">' . bc_icon( 'plus', 16 ) . 'افزودن به سبد</button>'; // phpcs:ignore WordPress.Security.EscapeOutput
+		echo bc_pdp_mini_step(); // phpcs:ignore WordPress.Security.EscapeOutput
 	} else {
 		echo '<a class="bcp-btn bcp-btn--outline" href="' . esc_url( $url ) . '">مشاهده و انتخاب</a>';
 	}
 	echo '</article>';
+}
+
+/**
+ * Small quantity stepper for a product card: + / count / - (a bin at one). Hidden until pdp.js finds the card's
+ * product in the visitor's cart; it then replaces the add button, so the visitor changes or removes it in place.
+ * Filled in by the script, never by PHP, so cached pages stay right.
+ */
+function bc_pdp_mini_step() {
+	return '<div class="bcp-mq is-one" data-bcp-mq role="group" aria-label="' . esc_attr( 'تعداد در سبد خرید' ) . '" hidden>'
+		. '<button type="button" class="bcp-mq__btn bcp-mq__btn--inc" data-bcp-mq-act="inc" aria-label="' . esc_attr( 'افزایش تعداد' ) . '">' . bc_icon( 'plus', 16 ) . '</button>'
+		. '<output class="bcp-mq__n" data-bcp-mq-n>۱</output>'
+		. '<button type="button" class="bcp-mq__btn bcp-mq__btn--dec" data-bcp-mq-act="dec" aria-label="' . esc_attr( 'حذف از سبد' ) . '"><span class="bcp-ic-trash">' . bc_icon( 'trash', 15 ) . '</span><span class="bcp-ic-minus">' . bc_icon( 'minus', 16 ) . '</span></button>'
+		. '</div>';
 }
 
 function bc_pdp_cards_section( $title, array $ids, $class = '' ) {
