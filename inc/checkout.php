@@ -68,7 +68,7 @@ function bc_checkout_field_spec() {
 			'priority'          => 30,
 			'required'          => true,
 			'autocomplete'      => 'tel-national',
-			'custom_attributes' => array( 'inputmode' => 'numeric', 'maxlength' => '11', 'dir' => 'ltr' ),
+			'custom_attributes' => array( 'inputmode' => 'tel', 'dir' => 'ltr' ), // Any format is accepted (see validation below).
 			'description'       => 'وضعیت سفارش و کد رهگیری به همین شماره پیامک می‌شود.',
 		),
 		'billing_state'      => array( 'label' => 'استان', 'class' => array( 'form-row-first' ), 'priority' => 40 ),
@@ -192,6 +192,28 @@ add_action( 'woocommerce_checkout_process', function () {
 	$_POST['billing_last_name']  = wp_slash( $last );
 }, 5 );
 
+/*
+ * The SMS plugin (Persian WooCommerce SMS) refuses the order when the phone is not an Iranian mobile number.
+ * The shop takes any phone format, so its check is taken off for this flow and the number is kept as typed
+ * (only Persian digits, spaces and dashes are normalised above). SMS still go out whenever it is a mobile number.
+ */
+add_action( 'woocommerce_checkout_process', function () {
+	if ( ! function_exists( 'bc_flow_enabled' ) || ! bc_flow_enabled() || ! function_exists( 'PWSMS' ) ) {
+		return;
+	}
+	global $wp_filter;
+	if ( isset( $wp_filter['woocommerce_checkout_process'] ) ) {
+		foreach ( $wp_filter['woocommerce_checkout_process']->callbacks as $priority => $callbacks ) {
+			foreach ( $callbacks as $cb ) {
+				$fn = $cb['function'];
+				if ( is_array( $fn ) && is_object( $fn[0] ) && 'PW\\PWSMS\\Orders' === get_class( $fn[0] ) && 'checkout_fields_validation' === $fn[1] ) {
+					remove_action( 'woocommerce_checkout_process', $fn, $priority );
+				}
+			}
+		}
+	}
+}, 6 );
+
 add_filter( 'woocommerce_checkout_posted_data', function ( $data ) {
 	foreach ( array( 'billing_phone', 'billing_postcode' ) as $k ) {
 		if ( isset( $data[ $k ] ) ) {
@@ -206,16 +228,15 @@ add_action( 'woocommerce_after_checkout_validation', function ( $data, $errors )
 		return;
 	}
 	if ( isset( $_POST['bc_full_name'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-		if ( '' === trim( (string) ( $data['billing_first_name'] ?? '' ) ) || '' === trim( (string) ( $data['billing_last_name'] ?? '' ) ) ) {
-			$errors->add( 'bc_name', '<strong>نام و نام خانوادگی</strong> را کامل وارد کنید.', array( 'id' => 'bc_full_name' ) );
+		// Any name is accepted, a first name alone included; it only must not be empty.
+		if ( '' === trim( (string) ( $data['billing_first_name'] ?? '' ) ) ) {
+			$errors->add( 'bc_name', '<strong>نام</strong> را وارد کنید.', array( 'id' => 'bc_full_name' ) );
 		}
 		if ( bc_checkout_terms() && empty( $_POST['bc_terms'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$errors->add( 'bc_terms', 'برای ثبت سفارش باید قوانین و شرایط خرید را بپذیرید.', array( 'id' => 'bc_terms' ) );
 		}
 	}
-	if ( ! empty( $data['billing_phone'] ) && ! preg_match( '/^09[0-9]{9}$/', $data['billing_phone'] ) ) {
-		$errors->add( 'bc_phone', '<strong>شماره موبایل</strong> باید ۱۱ رقم باشد و با ۰۹ شروع شود.', array( 'id' => 'billing_phone' ) );
-	}
+	// The phone number is taken in any format (09…, +98…, landline); only "required" applies to it.
 	if ( ! empty( $data['billing_postcode'] ) && ! preg_match( '/^[0-9]{10}$/', $data['billing_postcode'] ) ) {
 		$errors->add( 'bc_postcode', '<strong>کد پستی</strong> باید ۱۰ رقم باشد.', array( 'id' => 'billing_postcode' ) );
 	}
@@ -501,8 +522,6 @@ function bc_checkout_js_data() {
 		'terms'   => (bool) bc_checkout_terms(),
 		// Checks the browser runs before it moves on; the server repeats them (see woocommerce_after_checkout_validation).
 		'rules'   => array(
-			'bc_full_name'      => array( 'words' => 2, 'msg' => 'نام و نام خانوادگی را کامل وارد کنید' ),
-			'billing_phone'     => array( 'digits' => true, 'pattern' => '^09[0-9]{9}$', 'msg' => 'شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود' ),
 			'billing_address_1' => array( 'min' => 8, 'msg' => 'آدرس کامل را وارد کنید (خیابان، کوچه، پلاک)' ),
 			'billing_postcode'  => array( 'digits' => true, 'pattern' => '^[0-9]{10}$', 'msg' => 'کد پستی باید ۱۰ رقم باشد' ),
 			'billing_email'     => array( 'pattern' => '^[^@ ]+@[^@ ]+[.][^@ ]+$', 'msg' => 'ایمیل را درست وارد کنید' ),
