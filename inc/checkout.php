@@ -563,3 +563,41 @@ function bc_checkout_drop_parsidate_cities() {
 }
 add_action( 'wp_enqueue_scripts', 'bc_checkout_drop_parsidate_cities', 9999 );
 add_action( 'wp_print_footer_scripts', 'bc_checkout_drop_parsidate_cities', 1 );
+
+/*
+ * PWS calls pws_selectWoo() on the city select before the AJAX response arrives,
+ * which re-opens the dropdown. Fix: after select2:select on state/city/district, close that instance.
+ */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( ! bc_checkout_active() ) {
+		return;
+	}
+	$js = "jQuery(function($){" . "\n"
+		. "  \$(document.body).on(\"select2:select\",\"select[id\$='_state'],select[id\$='_city'],select[id\$='_district']\",function(){"
+		. "\n"
+		. "    \$(this).select2(\"close\");" . "\n"
+		. "  });" . "\n"
+		. "});";
+	wp_add_inline_script( 'pwsCheckout', $js );
+}, 10000 );
+
+/*
+ * PWS (Persian WooCommerce Shipping) calls pws_selectWoo() on the city select before the AJAX response arrives,
+ * which re-opens the dropdown. Additionally, after selecting a state the state dropdown stays open.
+ * Fix: after any select2:select on state/city/district, explicitly close that select2 instance.
+ * Also: validate-required on the name field is relaxed so a single first name is accepted (matches server side).
+ */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( ! bc_checkout_active() ) {
+		return;
+	}
+	$js = <<<'JS'
+jQuery(function($){
+	// Close the select2 dropdown after the user picks a value (PWS leaves it open in some flows).
+	$(document.body).on('select2:select select2:close', "select[id$='_state'], select[id$='_city'], select[id$='_district']", function(){
+		$(this).select2('close');
+	});
+});
+JS;
+	wp_add_inline_script( 'pwsCheckout', $js );
+}, 10000 );
