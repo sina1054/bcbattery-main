@@ -458,10 +458,12 @@ function bc_checkout_summary_rows( array $t ) {
 	foreach ( $t['taxes'] as $tax ) {
 		echo '<div class="bc-sum__row"><dt>' . esc_html( $tax['label'] ) . '</dt><dd>' . bc_money( $tax['amount'] ) . '</dd></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	}
-	echo '<div class="bc-sum__row bc-sum__row--total"><dt>' . ( $t['collect'] ? 'مبلغ قابل پرداخت اینترنتی' : 'مبلغ قابل پرداخت' ) . '</dt><dd>' . bc_money( $t['total'] ) . '</dd></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
+	echo '<div class="bc-sum__row bc-sum__row--total"><dt>' . ( $rate ? 'مبلغ قابل پرداخت اینترنتی' : 'مبلغ قابل پرداخت' ) . '</dt><dd>' . bc_money( $t['total'] ) . '</dd></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	echo '</dl>';
 	if ( $t['collect'] ) {
 		echo '<p class="bc-sum__note">هزینه ارسال هنگام تحویل پرداخت می‌شود؛ خارج از مبلغ پرداخت آنلاین.</p>';
+	} elseif ( $rate && 'paid' === $rate['kind'] ) { // D7: post / paid shipping is part of the online payment
+		echo '<p class="bc-sum__note">هزینه ارسال به مبلغ پرداخت آنلاین اضافه شده است.</p>';
 	}
 }
 
@@ -578,26 +580,5 @@ add_action( 'wp_enqueue_scripts', function () {
 		. "    \$(this).select2(\"close\");" . "\n"
 		. "  });" . "\n"
 		. "});";
-	wp_add_inline_script( 'pwsCheckout', $js );
-}, 10000 );
-
-/*
- * PWS (Persian WooCommerce Shipping) calls pws_selectWoo() on the city select before the AJAX response arrives,
- * which re-opens the dropdown. Additionally, after selecting a state the state dropdown stays open.
- * Fix: after any select2:select on state/city/district, explicitly close that select2 instance.
- * Also: validate-required on the name field is relaxed so a single first name is accepted (matches server side).
- */
-add_action( 'wp_enqueue_scripts', function () {
-	if ( ! bc_checkout_active() ) {
-		return;
-	}
-	$js = <<<'JS'
-jQuery(function($){
-	// Close the select2 dropdown after the user picks a value (PWS leaves it open in some flows).
-	$(document.body).on('select2:select select2:close', "select[id$='_state'], select[id$='_city'], select[id$='_district']", function(){
-		$(this).select2('close');
-	});
-});
-JS;
 	wp_add_inline_script( 'pwsCheckout', $js );
 }, 10000 );

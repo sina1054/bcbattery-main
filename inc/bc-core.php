@@ -54,7 +54,7 @@ function bc_enqueue_module( $handle, $css = '', $js = '', $deps = array(), $styl
 }
 
 /* Load modules. A failure in one module must never take the site down. */
-foreach ( array( 'product-fields', 'recommend', 'perf-compat', 'asset-hygiene', 'flow-ui', 'cart', 'checkout', 'pay', 'account', 'loop-badges' ) as $bc_module ) {
+foreach ( array( 'product-fields', 'recommend', 'perf-compat', 'asset-hygiene', 'flow-ui', 'cart', 'checkout', 'pay', 'account', 'loop-badges', 'seo-schema', 'flow-fixes', 'flow-header', 'variant-picker' ) as $bc_module ) {
     $bc_file = get_stylesheet_directory() . '/inc/' . $bc_module . '.php';
     if ( file_exists( $bc_file ) ) {
         try {

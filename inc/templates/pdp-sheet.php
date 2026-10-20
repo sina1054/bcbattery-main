@@ -41,21 +41,12 @@ $cur   = esc_html( get_woocommerce_currency_symbol() );
 
 					<div class="bcp-sheet__track" data-bcp="comp-track" tabindex="0" role="region" aria-label="محصولات مکمل">
 						<?php foreach ( $cards as $c ) : ?>
-							<article class="bcp-sc" data-pid="<?php echo (int) $c['id']; ?>" data-vid="<?php echo (int) $c['selected']; ?>">
+							<?php $vp_price = function_exists( 'bc_vp_card_price' ) ? bc_vp_card_price( $c ) : array( $c['choose'], $c['price'] ); ?>
+							<article class="bcp-sc" data-pid="<?php echo (int) $c['id']; ?>" data-vid="<?php echo (int) $c['selected']; ?>"<?php echo function_exists( 'bc_vp_card_attrs' ) ? bc_vp_card_attrs( $c ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput ?>>
 								<a class="bcp-sc__img" href="<?php echo esc_url( $c['url'] ); ?>" tabindex="-1" aria-hidden="true"><?php echo $c['img']; // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
 								<div class="bcp-sc__body">
 									<a class="bcp-sc__name" href="<?php echo esc_url( $c['url'] ); ?>"><?php echo esc_html( $c['name'] ); ?></a>
-									<div class="bcp-sc__price"><?php echo $c['choose'] ? '<small>از</small> ' : ''; ?><b data-bcp="sc-price"><?php echo esc_html( bc_pdp_number( $c['price'] ) ); ?></b> <small><?php echo $cur; // phpcs:ignore WordPress.Security.EscapeOutput ?></small></div>
-									<?php if ( $c['variants'] ) : ?>
-										<div class="bcp-sc__var">
-											<span class="bcp-sc__label"><?php echo esc_html( $c['label'] ); ?>: <b data-bcp="sc-varname"><?php foreach ( $c['variants'] as $v ) { if ( (int) $v['id'] === (int) $c['selected'] ) { echo esc_html( $v['label'] ); } } ?></b></span>
-											<div class="bcp-sc__pills" role="group" aria-label="<?php echo esc_attr( $c['label'] ); ?>">
-												<?php foreach ( $c['variants'] as $v ) : $on = (int) $v['id'] === (int) $c['selected']; ?>
-													<button type="button" class="bcp-sp<?php echo $on ? ' is-on' : ''; ?>" data-vid="<?php echo (int) $v['id']; ?>" data-price="<?php echo esc_attr( bc_pdp_number( $v['price'] ) ); ?>" aria-pressed="<?php echo $on ? 'true' : 'false'; ?>"><?php echo esc_html( $v['label'] ); ?></button>
-												<?php endforeach; ?>
-											</div>
-										</div>
-									<?php endif; ?>
+									<div class="bcp-sc__price"><?php echo $vp_price[0] ? '<small>از</small> ' : ''; ?><b data-bcp="sc-price"><?php echo esc_html( bc_pdp_number( $vp_price[1] ) ); ?></b> <small><?php echo $cur; // phpcs:ignore WordPress.Security.EscapeOutput ?></small></div>
 								</div>
 								<?php if ( $c['choose'] ) : ?>
 									<a class="bcp-btn bcp-btn--outline bcp-sc__add" href="<?php echo esc_url( $c['url'] ); ?>">انتخاب</a>
@@ -72,7 +63,7 @@ $cur   = esc_html( get_woocommerce_currency_symbol() );
 		</div>
 
 		<footer class="bcp-sheet__foot">
-			<a class="bcp-btn bcp-btn--primary bcp-btn--lg" href="<?php echo esc_url( wc_get_cart_url() ); ?>">مشاهده سبد خرید</a>
+			<a class="bcp-btn bcp-btn--primary bcp-btn--lg" href="<?php echo esc_url( wc_get_cart_url() ); ?>"><?php echo bc_icon( 'bag', 20 ); // phpcs:ignore WordPress.Security.EscapeOutput ?>مشاهده سبد</a>
 			<button type="button" class="bcp-btn bcp-btn--ghost" data-bcp-close>ادامه خرید</button>
 		</footer>
 	</div>

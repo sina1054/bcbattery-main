@@ -165,3 +165,7 @@ body.bc-flow .bc-mq.is-one [data-bc-act="dec"], body.bc-flow .bc-mq:not(.is-one)
 @media (min-width: 1025px) {
 	body.bc-flow .bc-comp__img { height: 104px; }
 }
+
+
+/* C1: shipping estimate in the summary (inc/seo-schema.php). */
+body.bc-flow .bc-sum__ship { display: flex; flex-direction: column; gap: 2px; font-size: 12px; line-height: 1.7; text-align: end; }

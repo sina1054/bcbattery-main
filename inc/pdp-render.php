@@ -44,6 +44,9 @@ function bc_pdp_register_hooks() {
 	add_action( 'woocommerce_single_product_summary', 'bc_pdp_buy_open', 20 );
 	add_action( 'woocommerce_single_product_summary', 'bc_pdp_perks_buy', 21 );
 	add_action( 'woocommerce_single_product_summary', 'bc_pdp_price', 22 );
+	if ( function_exists( 'bc_ship_note_pdp' ) ) { // C1: shipping estimate under the price (inc/seo-schema.php)
+		add_action( 'woocommerce_single_product_summary', 'bc_ship_note_pdp', 22 );
+	}
 	add_action( 'woocommerce_single_product_summary', 'bc_pdp_buybox', 23 );
 	add_action( 'woocommerce_single_product_summary', 'bc_pdp_buy_extras', 26 );
 	add_action( 'woocommerce_single_product_summary', 'bc_pdp_close_section', 29 );
@@ -624,7 +627,7 @@ function bc_pdp_incart() {
 	echo '<button type="button" class="bcp-step__btn" data-bcp="inc" aria-label="' . esc_attr( 'افزایش تعداد' ) . '">' . bc_icon( 'plus', 22 ) . '</button>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	echo '<output class="bcp-step__qty" data-bcp="qty">۱</output>';
 	echo '<button type="button" class="bcp-step__btn" data-bcp="dec" aria-label="' . esc_attr( 'کاهش تعداد' ) . '"><span class="bcp-ic-trash">' . bc_icon( 'trash', 20 ) . '</span><span class="bcp-ic-minus">' . bc_icon( 'minus', 22 ) . '</span></button></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
-	echo '<a class="bcp-viewcart" href="' . esc_url( wc_get_cart_url() ) . '">مشاهده سبد خرید</a></div>';
+	echo '<a class="bcp-viewcart" href="' . esc_url( wc_get_cart_url() ) . '">' . bc_icon( 'bag', 20 ) . 'مشاهده سبد</a></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	echo '<p class="bcp-incart__note" data-bcp="incart-note">این کالا در سبد خرید شماست</p></div>';
 }
 

@@ -516,15 +516,21 @@
 		var out = isSoldOut();
 		var id = curId();
 		var inCart = !!(id && lineFor(id));
-		barBtn.classList.toggle('is-disabled', out);
-		if (out) {
+		var tel = barBtn.getAttribute('data-tel'); // D5: out of stock -> call about stock
+		var call = out && !!tel;
+		barBtn.classList.toggle('is-disabled', out && !call);
+		if (out && !call) {
 			barBtn.setAttribute('aria-disabled', 'true');
 		} else {
 			barBtn.removeAttribute('aria-disabled');
 		}
-		barBtn.setAttribute('data-mode', inCart ? 'cart' : 'add');
-		barBtn.setAttribute('href', inCart ? cfg.cart || '#bcp-buy' : '#bcp-buy');
-		barBtn.textContent = out ? 'ناموجود' : inCart ? 'مشاهده سبد خرید' : 'افزودن به سبد خرید';
+		barBtn.setAttribute('data-mode', call ? 'call' : inCart ? 'cart' : 'add');
+		barBtn.setAttribute('href', call ? 'tel:' + tel : inCart ? cfg.cart || '#bcp-buy' : '#bcp-buy');
+		if (inCart && !out && !call) { // in the cart: bag icon + short label
+			barBtn.innerHTML = '<svg class="bc-i" aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg><span>مشاهده سبد</span>';
+		} else {
+			barBtn.textContent = call ? 'تماس برای موجودی' : out ? 'ناموجود' : 'افزودن به سبد خرید';
+		}
 	}
 
 	function renderBuy() {
@@ -713,8 +719,8 @@
 				e.preventDefault();
 				return;
 			}
-			if (barBtn.getAttribute('data-mode') === 'cart') {
-				return; // plain link to the cart
+			if (barBtn.getAttribute('data-mode') === 'cart' || barBtn.getAttribute('data-mode') === 'call') {
+				return; // plain link to the cart, or tel: link
 			}
 			e.preventDefault();
 			if (cfg.ajax && form) {
@@ -739,9 +745,60 @@
 	 * a card's product is in the cart its add button gives way to a small stepper (+ / count / - or bin), so the
 	 * visitor can change or remove it without leaving the page. The stepper follows the cart, whoever changed it.
 	 */
+	/* Cards of products with options (data-variants): the add button opens the "انتخاب تنوع" popup (variant-picker.js). */
+	function cardVariants(card) {
+		try {
+			return JSON.parse(card.getAttribute('data-variants') || 'null');
+		} catch (e) {
+			return null;
+		}
+	}
+	/* The id a card stands for: an option of it that is in the cart, else the chosen / default option, else the product. */
+	function cardLiveId(card) {
+		var vs = cardVariants(card);
+		if (vs) {
+			for (var i = 0; i < vs.length; i++) {
+				if (lineFor(parseInt(vs[i].id, 10))) {
+					return parseInt(vs[i].id, 10);
+				}
+			}
+		}
+		return parseInt(card.getAttribute('data-vid'), 10) || parseInt(card.getAttribute('data-pid'), 10);
+	}
+	function chooseAndAdd(card) {
+		var vs = cardVariants(card);
+		var link = card.querySelector('a[href]');
+		if (!vs || !window.BCVP) {
+			if (link) {
+				location.href = link.href;
+			}
+			return;
+		}
+		var img = card.querySelector('img');
+		var src = img ? img.getAttribute('data-src') || img.currentSrc || img.src : '';
+		var name = card.querySelector('.bcp-pc__name, .bcp-sc__name');
+		window.BCVP.open({
+			name: name ? name.textContent : '',
+			img: src && src.indexOf('data:') !== 0 ? src : '',
+			label: card.getAttribute('data-vlabel'),
+			variants: vs,
+			selected: cardLiveId(card),
+			onConfirm: function (vid) {
+				return addItem(vid, 1).then(
+					function () {
+						card.setAttribute('data-vid', String(vid));
+					},
+					function (err) {
+						toast(errorText(err));
+						throw err;
+					}
+				);
+			}
+		});
+	}
 	function miniCardId(mq) {
 		var card = mq.closest('[data-pid]');
-		return card ? parseInt(card.getAttribute('data-vid'), 10) || parseInt(card.getAttribute('data-pid'), 10) : 0;
+		return card ? cardLiveId(card) : 0;
 	}
 	function syncMini() {
 		$$('[data-bcp-mq]').forEach(function (mq) {
@@ -788,6 +845,11 @@
 			}
 			var btn = e.target.closest('[data-bcp-add]');
 			if (!btn) {
+				return;
+			}
+			var vcard = btn.closest('[data-variants]');
+			if (vcard) {
+				chooseAndAdd(vcard);
 				return;
 			}
 			busy(btn, true);
@@ -1099,7 +1161,7 @@
 		comp.track.scrollBy({ left: (rtl ? -1 : 1) * dir * step, behavior: motion() });
 	}
 	function cardId(card) {
-		return parseInt(card.getAttribute('data-vid'), 10) || parseInt(card.getAttribute('data-pid'), 10);
+		return cardLiveId(card);
 	}
 	function syncComp() {
 		if (!comp.cards) {
@@ -1146,6 +1208,8 @@
 				setText(el('sc-price', card), pill.getAttribute('data-price'));
 				syncComp();
 				syncMini(); // the chosen variant may be the one in the cart
+			} else if (add && card && !card.classList.contains('is-added') && card.hasAttribute('data-variants')) {
+				chooseAndAdd(card);
 			} else if (add && card && !card.classList.contains('is-added')) {
 				card.classList.add('is-loading');
 				addItem(cardId(card), 1)

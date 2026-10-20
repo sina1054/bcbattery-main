@@ -62,7 +62,7 @@ body.bc-flow .bc-head:not(:has(.bc-head__back)) .bc-head__title { padding-inline
 @media (min-width: 1025px) {
 	body.bc-flow .bc-head { min-height: 0; margin: 0 0 16px; padding: 0; background: none; border: 0; }
 	body.bc-flow .bc-head__back { display: none; }
-	body.bc-flow .bc-head__title { padding: 0; text-align: start; font-size: 24px; }
+	body.bc-flow .bc-head__title { padding: 0; text-align: center; font-size: 24px; } /* desktop: title centred (owner, 20 Oct) */
 }
 
 /* ---------- Steps ---------- */
@@ -76,7 +76,7 @@ body.bc-flow .bc-steps__link { display: flex; flex-direction: column; align-item
 body.bc-flow .bc-steps__line { flex: 1; height: 2px; margin-top: 13px; background: var(--bc-line-strong); }
 body.bc-flow .bc-steps__line.is-done { background: var(--bc-ok); }
 @media (min-width: 1025px) {
-	body.bc-flow .bc-steps { width: 480px; margin: 0 0 16px; padding: 0; background: none; }
+	body.bc-flow .bc-steps { width: 480px; max-width: 100%; margin: 0 auto 16px; padding: 0; background: none; } /* desktop: steps centred (owner, 20 Oct) */
 }
 
 /* ---------- Surfaces ---------- */
@@ -193,4 +193,30 @@ body.bc-flow .bc-zone { margin: 12px 0; }
 	body.bc-flow .bc-btn, body.bc-flow .bc-toast { transition: none; }
 	body.bc-flow dialog.bc-sheet[open] { animation: none; }
 	body.bc-flow .bc-busy .bc-bar__cta::after, body.bc-flow .bc-busy .bc-summary__cta::after { animation-duration: 1.6s; }
+}
+
+
+/* D9: titles that receive focus from the script (tabindex="-1") show no browser/theme ring; they are not controls. */
+body.bc-flow [tabindex="-1"]:focus:not(:focus-visible) { outline: 0; box-shadow: none; }
+body.bc-flow [tabindex="-1"]:focus-visible { outline: 2px solid var(--bc-blue); outline-offset: 2px; }
+
+
+/* ---------- C3: simple header on checkout and order-pay (inc/flow-header.php) ---------- */
+body.bc-flow--simple-head .whb-header, body.bc-flow--simple-head .whb-clone, body.bc-flow--simple-head .wd-sticky-nav, body.bc-flow--simple-head .wd-toolbar { display: none !important; }
+body.bc-flow .bc-mhead { position: relative; z-index: 5; background: #fff; border-bottom: 1px solid var(--bc-line); }
+body.bc-flow .bc-mhead__in { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; height: 56px; margin: 0 auto; padding: 0 12px 0 8px; box-sizing: border-box; }
+body.bc-flow .bc-mhead__logo { display: flex; align-items: center; justify-self: start; min-height: 44px; }
+body.bc-flow .bc-mhead__logo img { display: block; width: auto; height: 34px; }
+body.bc-flow .bc-mhead__name { color: var(--bc-ink); font-size: 15px; font-weight: 800; }
+body.bc-flow .bc-mhead__secure { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 10px; border-radius: 999px; background: var(--bc-ok-bg); color: var(--bc-ok); font-size: 12px; font-weight: 700; white-space: nowrap; }
+body.bc-flow .bc-mhead__end { display: flex; justify-content: flex-end; }
+body.bc-flow .bc-mhead__tel { display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; min-height: 44px; color: var(--bc-blue); text-decoration: none; }
+body.bc-flow .bc-mhead__tel-t { display: none; color: var(--bc-ink); font-size: 14px; white-space: nowrap; }
+body.bc-flow .bc-mhead__tel-t b { font-weight: 700; }
+body.bc-flow .bc-mhead__tel:focus-visible, body.bc-flow .bc-mhead__logo:focus-visible { outline: 2px solid var(--bc-blue); outline-offset: 2px; border-radius: 8px; }
+@media (min-width: 1025px) {
+	body.bc-flow .bc-mhead__in { height: 72px; max-width: var(--wd-container-w, 1222px); padding: 0 24px; }
+	body.bc-flow .bc-mhead__logo img { height: 44px; }
+	body.bc-flow .bc-mhead__secure { height: 34px; padding: 0 14px; font-size: 13px; }
+	body.bc-flow .bc-mhead__tel-t { display: inline; }
 }

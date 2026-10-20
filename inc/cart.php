@@ -270,6 +270,12 @@ function bc_cart_comp_variants( WC_Product_Variable $p, array $card, array $in_c
 			break;
 		}
 	}
+	foreach ( $card['variants'] as $v ) { // an option already in the cart wins: the card shows its stepper
+		if ( $v['in_cart'] ) {
+			$pick = $v;
+			break;
+		}
+	}
 	$card['selected'] = $pick['id'];
 	$card['price']    = $pick['price'];
 	$card['in_cart']  = $pick['in_cart'];
@@ -283,7 +289,8 @@ function bc_cart_summary_rows( array $d ) {
 	if ( $d['discount'] > 0 ) {
 		echo '<div class="bc-sum__row bc-sum__row--discount"><dt>تخفیف</dt><dd>' . bc_money( -$d['discount'] ) . '</dd></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	}
-	echo '<div class="bc-sum__row"><dt>هزینه ارسال</dt><dd class="bc-muted bc-sum__later">در مرحله بعد محاسبه می‌شود</dd></div>';
+	$ship = function_exists( 'bc_ship_note_cart_html' ) ? bc_ship_note_cart_html() : ''; // C1: shipping estimate before the address step
+	echo '<div class="bc-sum__row"><dt>هزینه ارسال</dt>' . ( $ship ? '<dd class="bc-muted bc-sum__later bc-sum__ship">' . $ship . '</dd>' : '<dd class="bc-muted bc-sum__later">در مرحله بعد محاسبه می‌شود</dd>' ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	echo '<div class="bc-sum__row bc-sum__row--total"><dt>مبلغ قابل پرداخت</dt><dd>' . bc_money( $d['total'] ) . '</dd></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	echo '</dl>';
 }

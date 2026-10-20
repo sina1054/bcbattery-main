@@ -84,7 +84,7 @@ add_action(
 					<?php if ( $terms ) : ?>
 						<div class="bc-terms" data-bc-terms>
 							<label class="bc-check" for="terms">
-								<input type="checkbox" id="terms" name="terms" value="1" class="bc-check__input">
+								<input type="checkbox" id="terms" name="terms" value="1" class="bc-check__input"<?php checked( (bool) apply_filters( 'bc_terms_checked_default', true ) ); // ticked by default ?>>
 								<span class="bc-check__box" aria-hidden="true"><?php echo bc_icon( 'check', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput ?></span>
 								<span class="bc-check__text"><?php wc_terms_and_conditions_checkbox_text(); ?></span>
 							</label>

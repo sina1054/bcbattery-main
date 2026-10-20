@@ -126,7 +126,7 @@ $contact  = bc_flow_contact();
 					<?php if ( $terms ) : ?>
 						<div class="bc-terms bc-view-pay" data-bc-terms>
 							<label class="bc-check" for="bc_terms">
-								<input type="checkbox" id="bc_terms" name="bc_terms" value="1" class="bc-check__input">
+								<input type="checkbox" id="bc_terms" name="bc_terms" value="1" class="bc-check__input"<?php checked( (bool) apply_filters( 'bc_terms_checked_default', true ) ); // ticked by default ?>>
 								<span class="bc-check__box" aria-hidden="true"><?php echo bc_icon( 'check', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput ?></span>
 								<span class="bc-check__text"><?php echo bc_checkout_terms_text( $terms ); // phpcs:ignore WordPress.Security.EscapeOutput ?> را مطالعه کرده‌ام و می‌پذیرم.</span>
 							</label>

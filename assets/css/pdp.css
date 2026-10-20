@@ -570,11 +570,11 @@ html.bcp-lock{overflow:hidden;scrollbar-gutter:stable}
 .bcp-page .bcp-pc__img{border-radius:10px}
 .bcp-page .bcp-pc__price{font-weight:800}
 .bcp-page .bcp-pc .bcp-btn,.bcp-page .bcp-sc__add{min-height:36px;height:36px;padding:0 10px;border-radius:10px;font-size:12.5px;gap:4px}
-.bcp-page .bcp-add{border:0;background:var(--bcp-soft);color:var(--bcp-c)}
-.bcp-page .bcp-add:hover{background:#E1EAFB}
+.bcp-page .bcp-pc .bcp-add{border:0;background:var(--bcp-soft);color:var(--bcp-c)}
+.bcp-page .bcp-pc .bcp-add:hover{background:#E1EAFB;color:var(--bcp-c);opacity:1}
 .bcp-page .bcp-add svg{flex:none}
 .bcp-page .bcp-add[hidden]{display:none}
-.bcp-page .bcp-add.is-loading{opacity:.6;pointer-events:none}
+.bcp-page .bcp-pc .bcp-add.is-loading{opacity:.6;pointer-events:none}
 .bcp-page .bcp-mq{display:flex;align-items:center;gap:2px;height:36px;margin-top:auto;padding:2px;border:1px solid var(--bcp-line);border-radius:10px;background:#fff}
 .bcp-page .bcp-mq[hidden]{display:none}
 .bcp-page .bcp-mq[aria-busy=true]{opacity:.6;pointer-events:none}
@@ -590,3 +590,60 @@ html.bcp-lock{overflow:hidden;scrollbar-gutter:stable}
 .bcp-page .bcp-sc .bcp-mq{grid-row:1;width:104px;margin-top:0}
 }
 .bcp-page .bcp-mq__btn:focus-visible{outline:2px solid var(--bcp-c);outline-offset:2px}
+
+
+/* C1: shipping estimate under the price (inc/seo-schema.php). */
+.bcp-page .bcp-ship{display:flex;align-items:flex-start;gap:6px;margin:8px 0 0;color:var(--bcp-muted);font-size:12.5px;line-height:1.8}
+.bcp-page .bcp-ship b{color:var(--bcp-ink);font-weight:700}
+.bcp-page .bcp-ship__ic{display:flex;flex:none;margin-top:3px;color:var(--bcp-c)}
+
+
+/* D11: phones - the floating contact button hides on the product page (the page has its own messenger button). */
+@media (max-width:767px){.bcp-page #arcontactus{display:none!important}}
+
+
+/* D8: a single complementary card in the after-add sheet fills the width as one horizontal row (image, name and price, button). */
+.bcp-page .bcp-sheet__track > .bcp-sc:only-child{flex:1 1 100%;display:grid;grid-template-columns:76px minmax(0,1fr) 104px;gap:6px 12px;align-items:end;padding:10px}
+.bcp-page .bcp-sheet__track > .bcp-sc:only-child .bcp-sc__img{grid-row:1;align-self:start;width:76px;height:76px}
+.bcp-page .bcp-sheet__track > .bcp-sc:only-child .bcp-sc__body{grid-row:1}
+.bcp-page .bcp-sheet__track > .bcp-sc:only-child .bcp-sc__add,.bcp-page .bcp-sheet__track > .bcp-sc:only-child .bcp-mq{grid-row:1;width:104px;margin-top:0}
+.bcp-page .bcp-sheet__comp:has(.bcp-sc:only-child) .bcp-sheet__nav,.bcp-page .bcp-sheet__comp:has(.bcp-sc:only-child) .bcp-sheet__dots{display:none}
+
+
+/* Product photos are on white: image boxes of cards, the after-add sheet and the buy bar are white too (no two-tone frame). */
+.bcp-page .bcp-pc__img,.bcp-page .bcp-sc__img,.bcp-page .bcp-bar__img{background:#fff}
+
+
+/* Phones: the after-add sheet shows its complementary cards whole (owner, 20 Oct). No "ادامه خرید" button (the X closes the sheet), smaller cards, tighter gaps. */
+@media (max-width:767px){
+.bcp-page .bcp-sheet__box{gap:10px}
+.bcp-page .bcp-sheet__scroll{gap:10px}
+.bcp-page .bcp-sheet__item{gap:10px;padding:8px}
+.bcp-page .bcp-sheet__thumb{width:52px;height:52px}
+.bcp-page .bcp-sheet__comp{gap:8px}
+.bcp-page .bcp-sheet__comp-head b{font-size:14px}
+.bcp-page .bcp-sheet__track{gap:8px}
+.bcp-page .bcp-sc{flex-basis:136px;gap:4px;padding:6px;border-radius:10px}
+.bcp-page .bcp-sc__img{height:72px}
+.bcp-page .bcp-sc__body{gap:4px}
+.bcp-page .bcp-sc__name{height:36px;font-size:12px;line-height:1.5}
+.bcp-page .bcp-sc__price{font-size:12.5px}
+.bcp-page .bcp-sc__add,.bcp-page .bcp-sc .bcp-mq{height:36px;min-height:36px}
+.bcp-page .bcp-sheet__foot .bcp-btn--ghost[data-bcp-close]{display:none}
+.bcp-page .bcp-sheet__foot .bcp-btn--lg{height:52px}
+}
+
+
+/* "مشاهده سبد" links carry a bag icon (owner, 20 Oct). */
+.bcp-page .bcp-viewcart{gap:8px}
+
+
+/* Breadcrumb tidy-up (owner request, 20 Oct): the theme's 'ol li{margin-bottom}' pushed every crumb but the last one up,
+   so the row looked uneven. One line, items centred, a drawn chevron, the current page cut with an ellipsis. */
+.bcp-page .bcp-crumb ol{margin:0;padding:0;min-width:0;max-width:100%;overflow:hidden}
+.bcp-page .bcp-crumb li{margin:0;padding:0;min-height:44px;line-height:20px}
+.bcp-page .bcp-crumb li+li::before{content:'';flex:none;width:6px;height:6px;border:solid currentColor;border-width:0 0 1.5px 1.5px;transform:rotate(-135deg);opacity:.55}
+.bcp-page .bcp-crumb a{min-height:44px;line-height:20px;text-decoration:none;transition:color .15s}
+.bcp-page .bcp-crumb a:hover{color:var(--wd-primary-color,#1D57D0)}
+.bcp-page .bcp-crumb li[aria-current]{flex:1 1 0;min-width:0}
+.bcp-page .bcp-crumb li[aria-current] span{display:block;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}

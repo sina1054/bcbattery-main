@@ -286,6 +286,43 @@
 		}
 	}
 
+	function openPicker(card) {
+		var vs;
+		try {
+			vs = JSON.parse(card.getAttribute('data-variants'));
+		} catch (e) {
+			vs = null;
+		}
+		if (!vs) {
+			return;
+		}
+		var img = $('img', card);
+		var src = img ? img.getAttribute('data-src') || img.currentSrc || img.src : '';
+		var name = $('.bc-comp__name', card);
+		window.BCVP.open({
+			name: name ? name.textContent : '',
+			img: src && src.indexOf('data:') !== 0 ? src : '',
+			label: card.getAttribute('data-vlabel'),
+			variants: vs,
+			selected: card.getAttribute('data-vid'),
+			onConfirm: function (vid) {
+				return send(
+					'add',
+					{ product_id: card.getAttribute('data-pid'), variation_id: vid },
+					{
+						after: function (res) {
+							BC.toast(res.ok ? 'به سبد خرید اضافه شد' : res.msg, { type: res.ok ? '' : 'err' });
+						}
+					}
+				).then(function (res) {
+					if (!res || !res.ok) {
+						throw new Error('add');
+					}
+				});
+			}
+		});
+	}
+
 	/* ---------- Coupon ---------- */
 
 	function toggleCoupon(open) {
@@ -383,6 +420,10 @@
 				pickVariant(el);
 				break;
 			case 'comp_add':
+				if (card && card.hasAttribute('data-variants') && window.BCVP) {
+					openPicker(card); // options are chosen in the "انتخاب تنوع" popup (variant-picker.js)
+					break;
+				}
 				el.classList.add('is-loading');
 				el.disabled = true;
 				send('add', { product_id: card.getAttribute('data-pid'), variation_id: card.getAttribute('data-vid') || 0 }, {

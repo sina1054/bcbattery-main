@@ -50,7 +50,13 @@ function bc_pdp_block_reviews() {
 		echo '<div class="bcp-empty"><span class="bcp-empty__ic">' . bc_icon( 'comment', 26 ) . '</span><b>هنوز دیدگاهی ثبت نشده</b><span>اولین نفری باشید که تجربه خرید این باتری را می‌نویسد.</span><button type="button" class="bcp-btn bcp-btn--outline" data-bcp="review-open">' . bc_icon( 'comment', 20 ) . 'ثبت دیدگاه</button></div>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	}
 	echo '<div class="bcp-reviews__wp">';
+	ob_start();
 	comments_template();
+	$html = (string) ob_get_clean();
+	if ( ! $count ) { // S9: no second reviews heading while there are no reviews (the section already has its own H2)
+		$html = preg_replace( '~<h2(\s+class="woocommerce-Reviews-title"[^>]*)>(.*?)</h2>~s', '<div$1>$2</div>', $html, 1 );
+	}
+	echo $html; // phpcs:ignore WordPress.Security.EscapeOutput
 	echo '</div></div>';
 }
 
@@ -89,7 +95,11 @@ function bc_pdp_sections() {
 	}
 	echo '</div></nav>';
 	foreach ( $blocks as $id => $b ) {
-		echo '<section class="bcp-block" id="bcp-' . esc_attr( $id ) . '"><header class="bcp-block__head"><h2>' . esc_html( $b[0] ) . '</h2><span>' . esc_html( $title ) . '</span></header><div class="bcp-block__body">';
+		if ( 'desc' === $id ) { // the description brings its own headings (owner request, 20 Oct): no "توضیحات" title and product-name line
+			echo '<section class="bcp-block bcp-block--nohead" id="bcp-desc" aria-label="' . esc_attr( $b[0] ) . '"><div class="bcp-block__body">';
+		} else {
+			echo '<section class="bcp-block" id="bcp-' . esc_attr( $id ) . '"><header class="bcp-block__head"><h2>' . esc_html( $b[0] ) . '</h2><span>' . esc_html( $title ) . '</span></header><div class="bcp-block__body">';
+		}
 		call_user_func( $b[2], isset( $b[3] ) ? $b[3] : $id, isset( $b[4] ) ? $b[4] : array() );
 		echo '</div></section>';
 	}
@@ -108,7 +118,14 @@ function bc_pdp_after_tabs() {
 function bc_pdp_card( WC_Product $p ) {
 	$url   = $p->get_permalink();
 	$price = '' === $p->get_price() ? 0 : (float) wc_get_price_to_display( $p );
-	echo '<article class="bcp-pc" data-pid="' . (int) $p->get_id() . '">';
+	$vcard = null; // a product with one choice to make: added through the "انتخاب تنوع" popup (variant-picker.js)
+	if ( $p->is_type( 'variable' ) && $p->is_in_stock() && $price > 0 && function_exists( 'bc_cart_comp_variants' ) && function_exists( 'bc_vp_card_attrs' ) ) {
+		$vcard = bc_cart_comp_variants( $p, array( 'variants' => array(), 'label' => '', 'choose' => false, 'selected' => 0, 'price' => $price, 'in_cart' => false ), array() );
+		if ( ! empty( $vcard['choose'] ) || empty( $vcard['variants'] ) ) {
+			$vcard = null;
+		}
+	}
+	echo '<article class="bcp-pc" data-pid="' . (int) $p->get_id() . '"' . ( $vcard ? ' data-vid="' . (int) $vcard['selected'] . '"' . bc_vp_card_attrs( $vcard ) : '' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	echo '<a class="bcp-pc__img" href="' . esc_url( $url ) . '" tabindex="-1" aria-hidden="true">' . $p->get_image( 'woocommerce_thumbnail', array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '', 'sizes' => '(max-width: 767px) 160px, 190px' ) ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	echo '<a class="bcp-pc__name" href="' . esc_url( $url ) . '">' . esc_html( $p->get_name() ) . '</a>';
 	echo '<div class="bcp-pc__price">';
@@ -121,6 +138,9 @@ function bc_pdp_card( WC_Product $p ) {
 	if ( ! $p->is_in_stock() ) {
 		echo '<span class="bcp-btn bcp-btn--ghost" aria-disabled="true">ناموجود</span>';
 	} elseif ( $p->is_type( 'simple' ) && $p->is_purchasable() && $price > 0 ) {
+		echo '<button type="button" class="bcp-btn bcp-add" data-bcp-add="' . (int) $p->get_id() . '">' . bc_icon( 'plus', 16 ) . 'افزودن به سبد</button>'; // phpcs:ignore WordPress.Security.EscapeOutput
+		echo bc_pdp_mini_step(); // phpcs:ignore WordPress.Security.EscapeOutput
+	} elseif ( $vcard ) {
 		echo '<button type="button" class="bcp-btn bcp-add" data-bcp-add="' . (int) $p->get_id() . '">' . bc_icon( 'plus', 16 ) . 'افزودن به سبد</button>'; // phpcs:ignore WordPress.Security.EscapeOutput
 		echo bc_pdp_mini_step(); // phpcs:ignore WordPress.Security.EscapeOutput
 	} else {
@@ -167,7 +187,11 @@ function bc_pdp_related() {
 	if ( ! $s['related'] ) {
 		return;
 	}
-	$ids = function_exists( 'bc_get_related_ids' ) ? bc_get_related_ids( $product->get_id(), $s['related_count'] ) : array();
+	// Owner's choice (20 Oct): this section uses the complementary algorithm (manual list first, then automatic picks).
+	$ids = function_exists( 'bc_get_complementary_ids' ) ? bc_get_complementary_ids( $product->get_id(), $s['related_count'] ) : array();
+	if ( ! $ids && function_exists( 'bc_get_related_ids' ) ) {
+		$ids = bc_get_related_ids( $product->get_id(), $s['related_count'] );
+	}
 	if ( ! $ids ) {
 		$ids = array_slice( array_map( 'absint', wc_get_related_products( $product->get_id(), $s['related_count'] ) ), 0, $s['related_count'] );
 	}

@@ -35,10 +35,12 @@ function bc_pdp_render_bar( WC_Product $p ) {
 	$own   = $p->is_type( 'simple' ) || ( $p->is_type( 'variable' ) && $m['pills'] );
 	$out   = $own && 'outofstock' === $m['current']->get_stock_status();
 	$en    = function_exists( 'bc_get_title_en' ) ? bc_get_title_en( $p->get_id() ) : '';
-	$label = $out ? 'ناموجود' : ( $own ? 'افزودن به سبد خرید' : 'مشاهده گزینه‌ها' );
+	$tel   = function_exists( 'bc_pdp_contact' ) ? (string) ( bc_pdp_contact()['phone'] ?? '' ) : '';
+	$call  = $out && '' !== $tel; // D5: out of stock -> the bar button calls the shop
+	$label = $call ? 'تماس برای موجودی' : ( $out ? 'ناموجود' : ( $own ? 'افزودن به سبد خرید' : 'مشاهده گزینه‌ها' ) );
 
 	echo '<div class="bcp-bar" data-bcp="bar" role="region" aria-label="' . esc_attr( 'خرید سریع' ) . '"><div class="bcp-bar__in">';
-	echo '<a class="bcp-bar__btn' . ( $out ? ' is-disabled' : '' ) . '" href="#bcp-buy" data-bcp="bar-btn"' . ( $out ? ' aria-disabled="true"' : '' ) . '>' . esc_html( $label ) . '</a>';
+	echo '<a class="bcp-bar__btn' . ( $out && ! $call ? ' is-disabled' : '' ) . '" href="' . esc_attr( $call ? 'tel:' . $tel : '#bcp-buy' ) . '" data-bcp="bar-btn"' . ( $call ? ' data-mode="call"' : '' ) . ( '' !== $tel ? ' data-tel="' . esc_attr( $tel ) . '"' : '' ) . ( $out && ! $call ? ' aria-disabled="true"' : '' ) . '>' . esc_html( $label ) . '</a>';
 	echo '<div class="bcp-bar__prod"><span class="bcp-bar__img">' . $p->get_image( 'woocommerce_gallery_thumbnail', array( 'alt' => '', 'loading' => 'lazy', 'decoding' => 'async' ) ) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	echo '<span class="bcp-bar__names"><b>' . esc_html( wp_strip_all_tags( $p->get_name() ) ) . '</b>' . ( '' !== $en ? '<span dir="ltr" lang="en">' . esc_html( $en ) . '</span>' : '' ) . '</span></div>';
 	if ( $d['p'] > 0 ) {
