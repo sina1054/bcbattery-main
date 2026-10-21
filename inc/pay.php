@@ -435,3 +435,73 @@ add_action( 'wp_enqueue_scripts', function () {
 	}
 	bc_enqueue_module( 'bc-pay', 'pay.css', 'pay.js', array( 'bc-flow' ), $style_deps );
 }, 20 );
+
+/* ------------------------------------------------------------------ */
+/* Straight to the bank (no order-pay hop)                              */
+/* ------------------------------------------------------------------ */
+
+/*
+ * WooCommerce answers the checkout request with the order-pay URL, and the gateway is started on that second page load (about two
+ * seconds of plugin boot, once more). For gateways that only redirect to the bank (ZarinPal, Zibal) the same start is done here,
+ * inside the checkout request, and the bank URL is handed back as the redirect. Anything unexpected (no URL, an error, another
+ * gateway, a bank form) falls back to the order-pay URL, which behaves exactly as before. Filter bc_pay_direct turns it off.
+ */
+if ( ! class_exists( 'BC_Pay_Redirect' ) ) {
+	/** Thrown from the wp_redirect filter to stop the gateway where it would send the redirect header and exit. An Error, so gateway catch( Exception ) blocks let it through. */
+	class BC_Pay_Redirect extends \Error {
+	}
+}
+
+add_filter( 'woocommerce_payment_successful_result', 'bc_pay_direct_start', 99, 2 );
+function bc_pay_direct_start( $result, $order_id ) {
+	if ( ! apply_filters( 'bc_pay_direct', true ) || ! function_exists( 'bc_flow_enabled' ) || ! bc_flow_enabled() ) {
+		return $result;
+	}
+	if ( ! is_array( $result ) || empty( $result['result'] ) || 'success' !== $result['result'] || empty( $result['redirect'] ) ) {
+		return $result;
+	}
+	$order = wc_get_order( $order_id );
+	if ( ! $order instanceof WC_Order || ! $order->needs_payment() ) {
+		return $result;
+	}
+	$method = $order->get_payment_method();
+	if ( ! in_array( $method, (array) apply_filters( 'bc_pay_direct_gateways', array( 'WC_ZPal', 'WC_Gateway_Zibal' ) ), true ) || ! has_action( 'woocommerce_receipt_' . $method ) ) {
+		return $result;
+	}
+	// Only when WooCommerce is sending the visitor to the order-pay page of this very order.
+	if ( false === strpos( (string) $result['redirect'], '/order-pay/' . $order->get_id() . '/' ) && false === strpos( (string) $result['redirect'], 'order-pay=' . $order->get_id() ) ) {
+		return $result;
+	}
+
+	$notices = wc_get_notices();
+	$url     = '';
+	$capture = function ( $location ) use ( &$url ) {
+		$url = (string) $location;
+		throw new BC_Pay_Redirect( 'bank redirect captured' );
+	};
+	$level = ob_get_level();
+	add_filter( 'wp_redirect', $capture, 0 );
+	ob_start();
+	try {
+		do_action( 'woocommerce_receipt_' . $method, $order->get_id() );
+	} catch ( \Throwable $e ) {
+		if ( ! $e instanceof BC_Pay_Redirect ) {
+			error_log( 'BC pay: direct start failed: ' . $e->getMessage() );
+			$url = '';
+		}
+	}
+	remove_filter( 'wp_redirect', $capture, 0 );
+	while ( ob_get_level() > $level ) {
+		ob_end_clean();
+	}
+
+	$host = (string) wp_parse_url( $url, PHP_URL_HOST );
+	if ( '' !== $url && 'https' === wp_parse_url( $url, PHP_URL_SCHEME ) && '' !== $host && $host !== wp_parse_url( home_url(), PHP_URL_HOST ) ) {
+		wc_set_notices( $notices ); // whatever the gateway said on the way is not needed any more
+		bc_pay_mark( true ); // a redirect back to /checkout/ from here on means the payment could not be started
+		$result['redirect'] = $url;
+		return $result;
+	}
+	wc_set_notices( $notices ); // fall back to the order-pay page, which starts the gateway again
+	return $result;
+}

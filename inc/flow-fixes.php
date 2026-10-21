@@ -160,3 +160,63 @@ add_filter( 'the_content', function ( $html ) {
 	return 'product' === get_post_type() ? bc_flow_drop_empty_headings( $html ) : $html;
 }, 20 );
 add_filter( 'woocommerce_short_description', 'bc_flow_drop_empty_headings', 20 );
+
+
+/*
+ * P1 (21 Oct): order SMS no longer hold up the way to the bank.
+ * On "pay", WooCommerce creates the order and two plugins send their SMS right there (Persian WooCommerce SMS on
+ * order created + processed, Woodmart Plus to the customer and the manager): each one waits for the SMS web service
+ * (up to 8 s when it is slow) before the visitor is sent to the gateway. During the checkout request those callbacks
+ * are queued instead and run after the answer has gone to the browser (litespeed_finish_request), so the SMS still go
+ * out, a second or two later. Off: add_filter( 'bc_flow_fix_P1', '__return_false' ).
+ */
+function bc_p1_is_sms_callback( $fn ) {
+	if ( ! is_array( $fn ) || ! isset( $fn[0], $fn[1] ) ) {
+		return false;
+	}
+	$class = is_object( $fn[0] ) ? get_class( $fn[0] ) : (string) $fn[0];
+	return 'PW\PWSMS\Orders' === ltrim( $class, '\\' ) || 'plus_order_notification' === $class;
+}
+
+add_action( 'woocommerce_checkout_process', function () {
+	if ( ! apply_filters( 'bc_flow_fix_P1', true ) || ! function_exists( 'litespeed_finish_request' ) ) {
+		return;
+	}
+	global $wp_filter;
+	$GLOBALS['bc_p1_queue'] = array();
+	foreach ( array( 'woocommerce_checkout_order_created', 'woocommerce_checkout_order_processed', 'woocommerce_order_status_changed' ) as $hook ) {
+		if ( empty( $wp_filter[ $hook ] ) ) {
+			continue;
+		}
+		foreach ( $wp_filter[ $hook ]->callbacks as $priority => $callbacks ) {
+			foreach ( $callbacks as $cb ) {
+				if ( ! bc_p1_is_sms_callback( $cb['function'] ) ) {
+					continue;
+				}
+				$fn   = $cb['function'];
+				$args = (int) $cb['accepted_args'];
+				remove_action( $hook, $fn, $priority );
+				add_action( $hook, function () use ( $fn ) {
+					$GLOBALS['bc_p1_queue'][] = array( $fn, func_get_args() );
+				}, $priority, $args );
+			}
+		}
+	}
+	register_shutdown_function( function () {
+		if ( empty( $GLOBALS['bc_p1_queue'] ) ) {
+			return;
+		}
+		ignore_user_abort( true );
+		litespeed_finish_request(); // the browser has its answer (redirect to the bank) from here on
+		if ( function_exists( 'set_time_limit' ) ) {
+			@set_time_limit( 120 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+		}
+		foreach ( $GLOBALS['bc_p1_queue'] as $job ) {
+			try {
+				call_user_func_array( $job[0], $job[1] );
+			} catch ( \Throwable $e ) {
+				error_log( 'bc P1 deferred SMS: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
+			}
+		}
+	} );
+}, 1 );
